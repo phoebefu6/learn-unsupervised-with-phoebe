@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 3 · k-means from the inside: Lloyd's loop, step by step - learn unsupervised with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-unsupervised-with-phoebe</a> / Session 3 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Unsupervised with Phoebe · Session 3 of 10</div>
+    <h1>k-means <span class="accent">from the inside</span></h1>
+    <p class="sub">Last session you scaled the pile and five clean segments appeared - but the algorithm that found them was still a black box. Today we open it. k-means is two steps repeated until nothing moves, and you will run those steps yourself, one press at a time, on the real Mango Lane sample. You will watch it settle beautifully from a good start, then watch it settle permanently WRONG from a bad one - and understand exactly why both happen.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Building</span>
+      <span class="chip audience">Builder track</span>
+      <span class="chip audience">You will run the loop by hand</span>
+      <span class="chip time">45 min + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Concepts</span>
+      <span class="a3" style="flex:4">20-40 · Step the loop</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why this session exists</h2>
+    </div>
+    <p class="lede">k-means is the workhorse of clustering, and the field's best teachers vote with their syllabi: Andrew Ng's ML specialization teaches exactly one clustering algorithm - k-means - and Google's clustering course does the same. Their bet, and this course's bet, is that understanding one algorithm's two-step loop deeply beats knowing ten algorithms shallowly. After today you will know what k-means optimizes, why it always settles, why WHERE it starts decides WHERE it ends, and what modern scikit-learn actually does about that (spoiler: not what older tutorials say).</p>
+    <div class="legend">
+      <span class="pill solid">Live - covered in session</span>
+      <span class="pill light">Self-study - read after</span>
+      <span class="pill peach">✦ Lab moment</span>
+      <span class="pill inkpill">🥭 The Mango Lane case</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      Lloyd's loop (assign, update, repeat - that is ALL of k-means), the number it optimizes (inertia) and why each round can only lower it, the local-optimum failure mode you will trigger live, and k-means++ - the initialization trick that makes bad starts rare.
+    </div>
+    <div class="callout tip">
+      <strong>The honesty rail (used all course)</strong>
+      The lab below runs REAL k-means in your browser - real k-means++ placement, real assignments, real centroid moves, real inertia. The only fake thing is the "truth match" score, which exists because our 300 customers are simulated with five planted segments. Real projects never get that number.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: LLOYD'S LOOP ============ -->
+  <section class="section" id="loop">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the algorithm itself</span>
+      <h2>Lloyd's loop <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">Here is the entire algorithm. Place k centroids somewhere. Then repeat two steps: <strong>(1) assign every point to its nearest centroid, (2) move each centroid to the average of its members</strong> - until assignments stop changing. That is ALL of k-means. Everything else you will ever read about it is commentary on these two steps.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lloyd's loop: assign, update, repeat until nothing moves">
+        <style>
+          .llH { font: 800 17px Inter, sans-serif; fill: #FFFFFF; }
+          .llT { font: 700 13px Inter, sans-serif; fill: #221A2E; }
+          .llX { font: 400 12.5px Inter, sans-serif; fill: #6B647D; }
+          .llA { font: 600 12.5px Inter, sans-serif; fill: #6B647D; }
+          .llC { font: 700 13.5px Inter, sans-serif; fill: #3F2A08; }
+          .llN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <defs>
+          <marker id="llAh" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 z" fill="#CCC5D9"/>
+          </marker>
+        </defs>
+        <text class="llA" x="70" y="46">Start: place k centroids (k-means++ spreads them out)</text>
+        <rect x="70" y="60" width="310" height="140" rx="14" fill="#F5EDFC"/>
+        <rect x="70" y="60" width="310" height="42" rx="14" fill="#581C87"/>
+        <text class="llH" x="90" y="88">① Assign</text>
+        <text class="llT" x="90" y="128">Every customer joins the cluster</text>
+        <text class="llT" x="90" y="146">of its NEAREST centroid.</text>
+        <text class="llX" x="90" y="172">Distances can only shrink or hold:</text>
+        <text class="llX" x="90" y="188">inertia falls (or stays).</text>
+        <rect x="500" y="60" width="310" height="140" rx="14" fill="#F5EDFC"/>
+        <rect x="500" y="60" width="310" height="42" rx="14" fill="#7E22CE"/>
+        <text class="llH" x="520" y="88">② Update</text>
+        <text class="llT" x="520" y="128">Each centroid walks to the</text>
+        <text class="llT" x="520" y="146">AVERAGE of its current members.</text>
+        <text class="llX" x="520" y="172">The mean is the best spot for them:</text>
+        <text class="llX" x="520" y="188">inertia falls (or stays).</text>
+        <line x1="380" y1="105" x2="496" y2="105" stroke="#CCC5D9" stroke-width="2.5" marker-end="url(#llAh)"/>
+        <text class="llA" x="392" y="96">memberships set</text>
+        <line x1="500" y1="165" x2="384" y2="165" stroke="#CCC5D9" stroke-width="2.5" marker-end="url(#llAh)"/>
+        <text class="llA" x="410" y="185">go again</text>
+        <line x1="655" y1="200" x2="655" y2="238" stroke="#CCC5D9" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#llAh)"/>
+        <rect x="500" y="242" width="310" height="40" rx="10" fill="#FBF0DE"/>
+        <text class="llC" x="520" y="267">✅ Nothing changed this round? Stop.</text>
+        <rect x="70" y="296" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="llN" x="94" y="308">Both steps can only lower inertia - so the loop must settle. That is all of k-means.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - assign, update, repeat: the whole algorithm in one cycle</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>One round, six imaginary customers<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Take six customers on a single scaled axis (call it "engagement"): A at 1, B at 2, C at 3, and X at 8, Y at 9, Z at 10. Two centroids start awkwardly at 4 and 6. Run one round by hand:</p>
+        <div class="steps">
+          <div class="step"><p><strong>Assign.</strong> A, B, C are nearer to the centroid at 4 - they join it. X, Y, Z are nearer to 6 - they join that one. Every customer now has exactly one cluster.</p></div>
+          <div class="step"><p><strong>Update.</strong> Centroid 1 moves to the average of A, B, C: (1+2+3)/3 = 2. Centroid 2 moves to the average of X, Y, Z: 9. Both centroids just jumped into the heart of their members.</p></div>
+          <div class="step"><p><strong>Assign again.</strong> Everyone re-checks their nearest centroid... and nobody switches. Assignments unchanged - the loop stops. Two rounds, done.</p></div>
+        </div>
+        <table class="clean">
+          <tr><th>Round</th><th>Centroid 1</th><th>Centroid 2</th><th>What happened</th></tr>
+          <tr><td>Start</td><td>at 4</td><td>at 6</td><td>awkward guesses, near neither group</td></tr>
+          <tr><td>1 · assign</td><td>gets A, B, C</td><td>gets X, Y, Z</td><td>memberships set by nearest-centroid</td></tr>
+          <tr><td>1 · update</td><td>moves to 2</td><td>moves to 9</td><td>each jumps to its members' average</td></tr>
+          <tr><td>2 · assign</td><td>keeps A, B, C</td><td>keeps X, Y, Z</td><td>nobody switches - the loop stops</td></tr>
+        </table>
+        <p>What did the loop optimize? <strong>Inertia: the within-cluster sum of squared distances</strong> - add up, for every customer, the squared distance to their own centroid. Assigning to the NEAREST centroid can only shrink those distances; moving a centroid to its members' AVERAGE is mathematically the spot that minimizes their squared distances. Each round can only lower inertia - which is exactly why k-means always settles and never oscillates forever.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>Andrew Ng's ML specialization spends its entire clustering week on this one algorithm - the intuition, the optimization objective, the initialization, and choosing k - and never introduces a second one. When the field's most famous teacher budgets a full week for two steps of arithmetic, the lesson is that the depth is in understanding WHAT those steps optimize, not in collecting algorithm names.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Voronoi territories: why the borders are straight<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>"Assign every point to its nearest centroid" quietly draws a map. The set of locations closer to centroid 1 than to any other centroid is a territory; the border between two territories is the line exactly halfway between the two centroids - and halfway lines are STRAIGHT. This carving of space into nearest-centroid territories is called a Voronoi diagram, and it means k-means clusters are always separated by straight borders (flat planes, in more dimensions).</p>
+        <p>File this away for Part 3 and for session 5: any real group whose true boundary is curved - a crescent, a ring, an S - is a shape k-means literally cannot draw around. Not "struggles with." Cannot. Its borders have no curves in them.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What a round costs (why k-means is everyone's default)<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Each round of the loop is honest arithmetic: measure the distance from every point to every centroid (assign), then average each cluster's members (update). No pairwise point-to-point comparisons, no tree building, no probability fitting - just points-times-centroids distance checks, a handful of rounds, done. That frugality is a big part of why Ng, Google, and half the BI tools on earth reach for k-means first: it is not just simple to explain, it is cheap to run at customer-base scale. Session 5's comparison card puts this in context - some of the rivals that fix k-means' blind spots pay for it in exactly this currency.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: WHERE YOU START MATTERS ============ -->
+  <section class="section" id="starts">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers initialization</span>
+      <h2>Where you start matters <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">The loop only ever improves - and that is precisely its weakness. It rolls downhill on the inertia landscape and stops in the first valley it reaches. If the starting centroids are placed badly, that valley is a <strong>local optimum</strong>: a genuinely bad clustering that no amount of further looping will ever fix, because escaping it would require inertia to go UP first, and the loop cannot do that.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Good start reaches the deep valley at inertia 92, unlucky start locks in a shallow valley at inertia 278">
+        <style>
+          .loH { font: 800 16px Inter, sans-serif; fill: #FFFFFF; }
+          .loT { font: 700 13.5px Inter, sans-serif; fill: #221A2E; }
+          .loX { font: 400 12.5px Inter, sans-serif; fill: #6B647D; }
+          .loN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <defs>
+          <marker id="loAh" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 z" fill="#CCC5D9"/>
+          </marker>
+        </defs>
+        <rect x="20" y="20" width="410" height="250" rx="14" fill="#F5EDFC"/>
+        <rect x="20" y="20" width="410" height="42" rx="14" fill="#581C87"/>
+        <text class="loH" x="40" y="47">🎯 Good start: rolls to the deep valley</text>
+        <path d="M 45 110 Q 150 130 235 232 Q 340 140 415 115" fill="none" stroke="#A855F7" stroke-width="3"/>
+        <line x1="105" y1="128" x2="185" y2="190" stroke="#CCC5D9" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#loAh)"/>
+        <circle cx="235" cy="225" r="9" fill="#7E22CE"/>
+        <text class="loT" x="165" y="258">settles: inertia 92</text>
+        <rect x="450" y="20" width="410" height="250" rx="14" fill="#F5EDFC"/>
+        <rect x="450" y="20" width="410" height="42" rx="14" fill="#7E22CE"/>
+        <text class="loH" x="470" y="47">🎲 Unlucky start: stuck in a shallow dip</text>
+        <path d="M 475 130 C 505 175, 535 188, 565 187 C 595 186, 625 150, 655 118 C 685 150, 730 215, 762 233 C 795 218, 825 165, 845 135" fill="none" stroke="#A855F7" stroke-width="3"/>
+        <circle cx="565" cy="180" r="9" fill="#D97706"/>
+        <text class="loT" x="475" y="216">locks: inertia 278</text>
+        <line x1="592" y1="168" x2="638" y2="132" stroke="#CCC5D9" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#loAh)"/>
+        <text class="loX" x="590" y="110">cannot climb the hill</text>
+        <text class="loX" x="690" y="262">the better valley (92)</text>
+        <rect x="20" y="296" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="loN" x="44" y="308">The loop only improves - a bad start settles into a bad answer and STAYS. Fix the start, not the loop.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two starts, two valleys: the loop stops in whichever it reaches first</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>k-means++ decoded<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The classic fix has two flavors. The brute-force one: run the whole thing many times from different random starts and keep the run with the lowest inertia. The smart one is <strong>k-means++</strong>, and it is one sentence: <strong>place the first centroid at random, then pick each next centroid preferring points FAR from the centroids already placed.</strong></p>
+        <p>Why that works: bad starts are almost always crowded starts - two centroids landing in the same real group, leaving another real group centroid-less. Spreading the initial centroids out makes each one likely to land near a different real group, so the loop starts near the deep valley instead of near a shallow one. It is not a guarantee - you will see a good start land at 85% truth match in the lab, not 100% - but it turns "pray" into "usually fine".</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>scikit-learn made k-means++ the default initialization for its KMeans estimator - you get the smart start without asking for it. The sklearn user guide is also blunt about the reason: plain k-means converges to local minima, and initialization is the lever that decides which one you get.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The landscape metaphor, made precise<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The valley picture above is not just a cartoon. Imagine every possible clustering of the 300 customers as a location, and the inertia of that clustering as the altitude there. Lloyd's loop is a walker on this landscape who can only step downhill: assign is one kind of downhill step, update is another. Convergence means reaching a spot where neither step goes down - a valley floor. Which floor you reach depends entirely on where the walker was dropped, and the landscape for five centroids has many valleys. Initialization is the drop point. That is all of Part 2 in one image.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Your restart budget, in plain terms<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three strategies, one decision: how much will you pay for insurance against a shallow valley?</p>
+        <table class="clean">
+          <tr><th>Strategy</th><th>What it does</th><th>When it fits</th></tr>
+          <tr><td>Random starts, many retries</td><td>run the full loop from many random drops, keep the lowest-inertia result</td><td>the old world - random drops crash often, so the old n_init=10 default bought ten tickets</td></tr>
+          <tr><td>k-means++, one run</td><td>one smart, spread-out start</td><td>sklearn's modern n_init='auto' - usually enough, as your 85% lab run shows</td></tr>
+          <tr><td>k-means++, best of N</td><td>several smart starts, keep the best</td><td>when the answer ships to marketing and must not wobble - our full-run labs use best-of-5</td></tr>
+        </table>
+        <p>Notice the pattern: the smarter the start, the fewer retries you need. The two fixes trade against each other - which is exactly why sklearn's default retry count changed when its default initialization did.</p>
+      </div>
+    </details>
+
+    <div class="callout tip">
+      <strong>The stale-default trap in older tutorials</strong>
+      Modern scikit-learn uses <code>n_init='auto'</code>, which for k-means++ initialization means <strong>ONE run</strong> - because a spread-out start usually does not need retries. The old default, <code>n_init=10</code>, was designed for RANDOM initialization, where ten retries were cheap insurance against crowded starts. Plenty of older tutorials still teach "always set n_init=10" as gospel without saying why. Now you know what the knob actually does: it is the brute-force fix, and k-means++ is the reason you rarely need it anymore.
+    </div>
+  </section>
+
+  <!-- ============ PART 3: WHAT K-MEANS ASSUMES ============ -->
+  <section class="section" id="assumes">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the fine print</span>
+      <h2>What k-means assumes <span class="tag concept">4 min live</span></h2>
+    </div>
+    <p class="lede">Averages and straight borders are not neutral machinery - they are a worldview. k-means implicitly assumes your real groups are <strong>round-ish blobs of roughly similar size</strong>, separable by straight lines. Our scaled Mango Lane pile happens to fit that worldview, which is why it works so well here. Not all data is so polite.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The worldview in three lines<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Round-ish blobs:</strong> a centroid is an average, and an average is only a good summary of a group that clusters around its center. Stretched or curved groups have averages that sit in weird places - sometimes outside the group entirely.</li>
+          <li><strong>Similar sizes:</strong> a big sprawling group next to a tight small one tempts k-means to slice the big one in half and hand a piece to the small one's centroid, because that lowers inertia.</li>
+          <li><strong>Straight borders:</strong> the Voronoi territories from Part 1. Two crescent moons interlocking? k-means will draw one straight line through both and confidently report two clusters that each contain half of each moon.</li>
+        </ul>
+        <table class="clean">
+          <tr><th>Assumption</th><th>Data that breaks it</th><th>Who handles it (session 5)</th></tr>
+          <tr><td>Round-ish blobs</td><td>stretched, curved, or ring-shaped groups</td><td>DBSCAN traces arbitrary shapes</td></tr>
+          <tr><td>Similar sizes</td><td>a sprawling group beside a tight one</td><td>GMM lets clusters own their spread</td></tr>
+          <tr><td>Straight borders</td><td>the two interlocking moons</td><td>DBSCAN again - it follows density, not lines</td></tr>
+        </table>
+        <p>Session 5 shows you those two moons live - and the algorithms (DBSCAN especially) that CAN trace curved shapes. Today's point is simpler: when k-means fails, it fails silently and confidently, because the loop always settles and always reports clusters.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>scikit-learn's documentation ships a demo literally titled "Demonstration of k-means assumptions": the library's own authors running their own tool on stretched blobs, unequal sizes, and wrong k, and showing it confidently mis-cluster all three. Official docs that dedicate a page to "here is our tool producing convincing nonsense" are docs worth believing - and session 9 runs that demo's spirit on our own pile.</div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Everyone steps</span>
+      <h2>Step the loop yourself 🥭 <span class="tag demo">★ 20 min · one press per round</span></h2>
+    </div>
+    <p class="lede">The lab below runs REAL k-means on the scaled Mango Lane sample - but hands YOU the loop. Every press of ⏭ Step is one round: assignments, then centroid moves, then the new inertia. You will watch a good start settle, then manufacture a bad one and watch it trap itself, live.</p>
+
+    <div id="cluster-live" data-mode="iterate"></div>
+
+    <div class="steps">
+      <div class="step"><p><strong>Read the opening position.</strong> Five centroids have been placed by k-means++ - notice they are spread out across the PCA view of the scaled pile, not clumped. That spread is the whole trick, and it happened before a single round ran.</p></div>
+      <div class="step"><p><strong>Press ⏭ Step repeatedly.</strong> Each round: customers join their nearest centroid, centroids walk to their members' average, and inertia falls. Watch it fall EVERY round - never rise - until the loop settles around 6 rounds at inertia 92, truth match about 85%. You just ran Lloyd's loop to convergence by hand.</p></div>
+      <div class="step"><p><strong>Press ↺ Reset, then 🎲 Unlucky random start, then step about 10 times.</strong> The loop still behaves perfectly - inertia falls every round - but it settles PERMANENTLY at inertia 278, truth match 65%. Two centroids are sharing one real segment while two real segments share a centroid. Keep pressing: nothing will ever change. That is a local optimum, live.</p></div>
+      <div class="step"><p><strong>Say the moral out loud.</strong> The unlucky run did not malfunction - the loop did exactly its job and rolled into the nearest valley. The fix is better STARTS: k-means++ placement or multiple restarts. Not paranoia, and not more looping. The full-run labs in the other sessions all use best-of-5 restarts for exactly this reason.</p></div>
+      <div class="step"><p><strong>Compare across sessions.</strong> Today's single k-means++ run reached about 85% truth match; the best-of-5-restarts labs elsewhere reach 100% on the same pile. Even good starts vary - and choosing how many starts to pay for is precisely what sklearn's n_init knob is about. The stale-default callout from Part 2 should feel concrete now.</p></div>
+    </div>
+    <div class="callout tip">
+      <strong>✦ The step button is the lesson</strong>
+      Libraries run this loop in microseconds and only show you the answer, which is how k-means stays a black box for most people who use it. Having pressed each round yourself once, you will never again wonder what KMeans.fit() is doing - or why two runs on identical data can disagree.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Before next session</span>
+      <h2>Homework 📝 <span class="tag exercise">◐ 20 minutes</span></h2>
+    </div>
+    <ul>
+      <li><strong>Explain the loop with coins on a table.</strong> A handful of coins as customers, two bottle caps as centroids: assign, average, move, repeat. If you can run three rounds for a colleague and they can predict the fourth, you both own the algorithm.</li>
+      <li><strong>Write three sentences on why inertia can never rise during the loop.</strong> One sentence per step (why assignment can only lower it, why the update can only lower it), one for the conclusion (why the loop must settle). This is the session's core logic in your own words.</li>
+      <li><strong>Find k-means hiding in a BI tool you use.</strong> Clustering buttons in dashboards, "auto-segment" features, spreadsheet add-ins - many are k-means under a friendlier name. Check whether the tool lets you see (or set) the initialization or number of runs. Most hide it - now you know what is hidden.</li>
+    </ul>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · One round of Lloyd's loop is...</p>
+      <button class="qopt" type="button">A · recompute the silhouette, then remove the worst-scoring outliers</button>
+      <button class="qopt" type="button">B · assign every point to its nearest centroid, then move each centroid to the average of its members</button>
+      <button class="qopt" type="button">C · split the largest cluster, then merge the two closest clusters</button>
+      <p class="qwhy">Assign, then update - that is the entire algorithm, repeated until assignments stop changing. Both steps can only lower inertia (within-cluster sum of squared distances), which is why the loop always settles.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · Why does a bad start produce a PERMANENTLY bad answer instead of a temporarily bad one?</p>
+      <button class="qopt" type="button">A · each round can only lower inertia, so the loop cannot climb out of the shallow valley it settled into - escaping would require inertia to rise first</button>
+      <button class="qopt" type="button">B · a bad start corrupts the distance calculations for all later rounds</button>
+      <button class="qopt" type="button">C · it does not - running more rounds always fixes a bad start eventually</button>
+      <p class="qwhy">The loop is pure downhill. That guarantees convergence AND guarantees it stays in whatever valley it reaches first. You watched it live: the unlucky start locked at inertia 278 while a better answer at 92 existed. The fix is better starts, not more rounds.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">3 · What does k-means++ do differently from plain random initialization?</p>
+      <button class="qopt" type="button">A · it runs the loop from ten different starts and keeps the best result</button>
+      <button class="qopt" type="button">B · it chooses the number of clusters k automatically from the data</button>
+      <button class="qopt" type="button">C · it places the first centroid at random, then picks each next centroid preferring points far from the centroids already placed</button>
+      <p class="qwhy">Spread-out starts make crowded starts (the cause of most local optima) rare. Option A describes the n_init brute-force fix - useful with random starts, which is why sklearn's modern n_init='auto' runs k-means++ just ONCE.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ SOURCES COVERED ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Coverage, honestly</span>
+      <h2>What this session covered from the official universe</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Andrew Ng ML Specialization course 3, week 1 - k-means algorithm + optimization objective</span><span class="note">Lloyd's loop, inertia as the objective, initialization - taught by stepping the loop by hand</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">scikit-learn KMeans documentation</span><span class="note">k-means++ as default init, local optima, and the n_init='auto' = one k-means++ run correction</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google ML Clustering course - the k-means algorithm</span><span class="note">the assign/update mechanics and the assumptions fine print, on the Mango Lane pile</span></div>
+    </div>
+    <p>Certificates, videos, and graded assessments stay with the official providers - this course teaches the working core with a live in-browser lab. Full source map in the repo's <em>materials/official-course-map.md</em>.</p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 3 cheat sheet</h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Lloyd's loop</b><span>Place k centroids, then repeat: assign every point to its nearest centroid; move each centroid to its members' average. Stop when assignments stop changing.</span></div>
+      <div class="cheat-item"><b>Inertia</b><span>Within-cluster sum of squared distances - the number k-means minimizes. Lower = tighter clusters around their centroids.</span></div>
+      <div class="cheat-item"><b>Why it always settles</b><span>Both steps can only lower inertia, so the loop is pure downhill - it must reach a valley and stop. It never oscillates forever.</span></div>
+      <div class="cheat-item"><b>Local optimum</b><span>A shallow valley: a bad answer the loop cannot escape, because escaping would require inertia to rise. Lab proof: unlucky start locks at 278 while 92 exists.</span></div>
+      <div class="cheat-item"><b>k-means++</b><span>First centroid random; each next centroid picked preferring points far from those already placed. Spread starts, rare local optima. sklearn's default.</span></div>
+      <div class="cheat-item"><b>n_init='auto'</b><span>Modern sklearn: ONE k-means++ run. The old n_init=10 default was insurance for RANDOM inits - older tutorials still teach the stale default.</span></div>
+      <div class="cheat-item"><b>The worldview</b><span>k-means assumes round-ish, similar-size blobs with straight (Voronoi) borders. Curved shapes like the two moons are invisible to it - session 5.</span></div>
+      <div class="cheat-item"><b>The fix</b><span>Bad starts are fixed by better starts: k-means++ or best-of-N restarts (our full-run labs use best-of-5). Never by running the loop longer.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 3 of 10 · learn-unsupervised-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="u2-what-similar-means.html">← Prev: What "similar" means</a> &nbsp;·&nbsp; <a href="u4-picking-k.html">Next: Picking k →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+<script src="../assets/cluster-live.js?v=1"></script>
+</body>
+</html>

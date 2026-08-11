@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 7 · Naming and shipping segments: from cluster ids to campaigns - learn unsupervised with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-unsupervised-with-phoebe</a> / Session 7 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Unsupervised with Phoebe · Session 7 of 10</div>
+    <h1>Naming and <span class="accent">shipping segments</span></h1>
+    <p class="sub">Session 4 validated five clusters on the Mango Lane pile (k=5, silhouette 0.68). Marketing does not campaign to "cluster 3" - they campaign to people they can picture. Today the cluster ids become profiled, honestly named personas, each welded to a campaign, an owner, and a metric - the one-page segment sheet that is the actual deliverable of every segmentation project. Everything before this session was math; everything in it is translation, and translation is where segmentations live or die.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Building</span>
+      <span class="chip audience">Builder track</span>
+      <span class="chip audience">The deliverable session</span>
+      <span class="chip time">45 min + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Concepts</span>
+      <span class="a3" style="flex:4">20-40 · Build the segment sheet</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why this session exists</h2>
+    </div>
+    <p class="lede">Here is a fact about cluster 3 that no algorithm will ever surface: cluster 3 has never bought anything. Because "cluster 3" is not a customer - it is an id the algorithm stamped on 60 rows. Nobody funds a campaign for an id, nobody owns an id, and an id cannot drift, complain, or churn. The gap between "the model converged" and "marketing shipped something" is crossed by exactly three moves - profile, name, sheet - and every one of them is a place where a careful analysis can turn into confident fiction. This session is those three moves, done with the discipline the last six sessions earned.</p>
+    <div class="legend">
+      <span class="pill solid">Live - covered in session</span>
+      <span class="pill light">Self-study - read after</span>
+      <span class="pill peach">✦ Lab moment</span>
+      <span class="pill inkpill">🥭 The Mango Lane case</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The profiling table (how clusters introduce themselves), the naming discipline (validate first, name from behavior, keep names falsifiable), the stability check that separates real structure from lucky slicing, and the segment sheet - the one-page artifact per segment that turns a clustering into something a business can actually run.
+    </div>
+    <div class="callout tip">
+      <strong>The honesty rail (used all course)</strong>
+      Our lab's five personas will match the planted archetypes because the data is simulated - the "truth match" score exists only for that reason. On a real project the profiling table and the stability check are ALL the evidence you get that your names describe something real. Treat today's checks as the real job, not the safety net.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: PROFILING ============ -->
+  <section class="section" id="profiling">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers profiling</span>
+      <h2>Profiling: let the clusters introduce themselves 🥭 <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">A cluster id becomes a candidate persona through one boring, powerful table: <strong>per segment - size, mean R, mean F, mean M, share of revenue.</strong> Five rows, a handful of columns, and suddenly the geometry has a face. The skill is not building the table (any spreadsheet can); it is reading every cell AGAINST the whole-pile average. "F = 9.1" says nothing. "This group orders 2.4x more often than the pile average" is a sentence marketing can act on. A profile is a comparison, not a number.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The five Mango Lane segment profile cards">
+        <style>
+          .prH { font: 800 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .prS { font: 700 12px Inter, sans-serif; fill: #221A2E; }
+          .prX { font: 400 12px Inter, sans-serif; fill: #6B647D; }
+          .prC { font: 600 12px Inter, sans-serif; fill: #581C87; }
+          .prN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+          .prA { stroke: #CCC5D9; stroke-width: 2.5; fill: none; marker-end: url(#prAh); }
+        </style>
+        <defs>
+          <marker id="prAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#CCC5D9" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="20" y="28" width="164" height="190" rx="14" fill="#F5EDFC"/>
+        <rect x="20" y="28" width="164" height="38" rx="14" fill="#581C87"/>
+        <text class="prH" x="32" y="52">VIP regulars</text>
+        <text class="prS" x="32" y="90">55 customers</text>
+        <text class="prX" x="32" y="112">R low - just here</text>
+        <text class="prX" x="32" y="130">F ~22 orders/yr</text>
+        <text class="prX" x="32" y="148">~$115 avg order</text>
+        <text class="prC" x="32" y="182">the loyal core</text>
+        <rect x="192" y="28" width="164" height="190" rx="14" fill="#F5EDFC"/>
+        <rect x="192" y="28" width="164" height="38" rx="14" fill="#7E22CE"/>
+        <text class="prH" x="204" y="52">Steady mid-basket</text>
+        <text class="prS" x="204" y="90">90 customers</text>
+        <text class="prX" x="204" y="112">R mid - regular</text>
+        <text class="prX" x="204" y="130">F ~9 orders/yr</text>
+        <text class="prX" x="204" y="148">~$70 avg order</text>
+        <text class="prC" x="204" y="182">the big middle</text>
+        <rect x="364" y="28" width="164" height="190" rx="14" fill="#F5EDFC"/>
+        <rect x="364" y="28" width="164" height="38" rx="14" fill="#A855F7"/>
+        <text class="prH" x="376" y="52">One-time gifters</text>
+        <text class="prS" x="376" y="90">60 customers</text>
+        <text class="prX" x="376" y="112">R varies wildly</text>
+        <text class="prX" x="376" y="130">F ~1.2 orders/yr</text>
+        <text class="prX" x="376" y="148">~$98 avg order</text>
+        <text class="prC" x="376" y="182">one big basket</text>
+        <rect x="536" y="28" width="164" height="190" rx="14" fill="#F5EDFC"/>
+        <rect x="536" y="28" width="164" height="38" rx="14" fill="#7E22CE"/>
+        <text class="prH" x="548" y="52">Fresh arrivals</text>
+        <text class="prS" x="548" y="90">45 customers</text>
+        <text class="prX" x="548" y="112">R low - brand new</text>
+        <text class="prX" x="548" y="130">F ~3 orders/yr</text>
+        <text class="prX" x="548" y="148">~$45 avg order</text>
+        <text class="prC" x="548" y="182">story just began</text>
+        <rect x="708" y="28" width="164" height="190" rx="14" fill="#F5EDFC"/>
+        <rect x="708" y="28" width="164" height="38" rx="14" fill="#581C87"/>
+        <text class="prH" x="720" y="52">Lapsed big spenders</text>
+        <text class="prS" x="720" y="90">50 customers</text>
+        <text class="prX" x="720" y="112">R ~225 days</text>
+        <text class="prX" x="720" y="130">F fell to zero</text>
+        <text class="prX" x="720" y="148">~$93 avg order</text>
+        <text class="prC" x="720" y="182">worth winning back</text>
+        <line class="prA" x1="220" y1="254" x2="220" y2="226"/>
+        <text class="prS" x="244" y="258">every card is read against the pile average: AOV $68 · R ~60 days · 300 lab customers</text>
+        <rect x="20" y="292" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="prN" x="44" y="304">A profile is a comparison against the pile average, never a number standing on its own.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the five profile cards, each read against the pile average</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Building and reading the profiling table<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The table is a group-by: one row per cluster, mean of each feature, plus size and share of revenue. Here are the Mango Lane five, profiled from session 4's validated k=5 run:</p>
+        <table class="clean">
+          <tr><th>Segment</th><th>Size</th><th>Frequency</th><th>Avg order</th><th>The read vs the pile</th></tr>
+          <tr><td>VIP regulars</td><td>55</td><td>~22 /yr</td><td>~$115</td><td>far above average on frequency AND spend - the loyal core</td></tr>
+          <tr><td>Steady mid-basket</td><td>90</td><td>~9 /yr</td><td>~$70</td><td>the center of gravity, sitting right on the $68 pile AOV</td></tr>
+          <tr><td>One-time gifters</td><td>60</td><td>~1.2 /yr</td><td>~$98</td><td>one big basket, then silence - occasion buyers, not lapsed loyals</td></tr>
+          <tr><td>Fresh arrivals</td><td>45</td><td>~3 /yr</td><td>~$45</td><td>new, small baskets - their story is not written yet</td></tr>
+          <tr><td>Lapsed big spenders</td><td>50</td><td>fell off</td><td>~$93</td><td>R ~225 days against a pile average near 60 - gone, but not cheap</td></tr>
+        </table>
+        <p>Two reading habits. First, <strong>always add the share-of-revenue column</strong>: 55 VIPs are 18% of heads but a far larger slice of the money, and that asymmetry is usually the single most persuasive number in the deck. Second, <strong>read rows for contrast, not description</strong>: gifters and lapsed spenders have similar average orders, and only recency and frequency tell you one needs an occasion nudge and the other a rescue mission.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>Google's clustering course ends its "evaluating results" chapter with exactly this move: check clusters against expected behavior before using them. In practice that check IS the profiling table - practitioners eyeball the group-by means against the population means, and a cluster whose profile reads "average on everything" is the first candidate for merging. If you cannot write one contrastive sentence about a row, that row may not deserve to be a segment.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Reading the sizes: why 90 in the middle is good news<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The size column deserves its own read. Our five sit at 55 / 90 / 60 / 45 / 50 - no giant blob, no sliver, every one comfortably fundable, which is part of why session 4's actionability test passed at k=5. Two warning shapes to know. <strong>One segment holding most of the pile</strong> usually means the features are not separating behavior - everyone looks average on what you measured, so measure something else. <strong>A segment in the single digits</strong> is a handful of customers wearing a persona; it may be real (whales exist) but it belongs on an account manager's list, not in a campaign tool. Healthy segmentations look like ours: a big middle, distinct wings, nothing too small to matter.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Profiling beyond the clustering features<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A professional trick: profile on MORE columns than you clustered on. We clustered on R, F, M - but once the segments exist you can compute each segment's average discount usage, category mix, or return rate, none of which the algorithm ever saw. If those held-out columns also differ sharply between segments, that is independent evidence the structure is real - the clusters "know" things they were never shown. If every held-out column looks identical across segments, your clusters may be geometry without meaning. This is the closest thing unsupervised work has to a free validation set.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: NAMING ============ -->
+  <section class="section" id="naming">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the naming discipline</span>
+      <h2>Naming: the most dangerous fun in data science <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">A name is not a label - it is a claim. "VIP regulars" claims two things at once: that these customers are frequent (regulars) AND valuable (VIP). Both happen to be true in the profile - F ~22 and ~$115 stand far above the pile - but you must check both BEFORE the name sticks, because once a name enters a slide deck it stops being questioned. Names outlive their evidence. That is what makes naming the most dangerous fun in the field.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The three rules of honest naming<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <div class="steps">
+          <div class="step"><p><strong>Validate before naming.</strong> Session 1 said it and session 4 built it: the k=5 structure earned its silhouette 0.68 BEFORE anyone wrote a persona. Reverse the order and your brain will happily write a loving character study of a cloud of noise - naming feels productive precisely when it should feel suspicious.</p></div>
+          <div class="step"><p><strong>Name from behavior, not demographic guesses.</strong> "One-time gifters" is earned: F ~1.2, big baskets, no repeat. "Young professionals" would be invented - we have no ages, no professions, and the name would smuggle a marketing fantasy into the data. If the feature table cannot testify to it, the name cannot claim it.</p></div>
+          <div class="step"><p><strong>Keep names falsifiable.</strong> A good name is one the data could prove wrong. "Lapsed big spenders" fails if recency turns out low or spend turns out small - checkable, therefore trustworthy. "Brand lovers" can never fail, because no column measures love. Prefer names that take a risk.</p></div>
+        </div>
+        <div class="callout example"><span class="ex-pill">Real world</span>Every loyalty program you belong to runs on named RFM-style tiers, and the field's classic naming failures are demographic: a retailer names a high-spend cluster "affluent suburban moms", builds creative around the fantasy, and later learns from a survey panel that the segment is half gift-buying men. The behavior was real; the story bolted onto it was not. Behavioral names would have survived that survey. Demographic guesses did not.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The stability check: does the structure survive a re-run?<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Before a name ships, one last test: <strong>re-run the clustering on a subsample of the pile - do the same five personas reappear?</strong> Drop a random 20% of customers, cluster the rest, profile again. Structure that is real survives resampling: you should meet the same loyal core, the same big middle, the same graveyard of lapsed spenders, with wobbling counts but stable characters. Structure that was luck - a border artifact, an initialization fluke - shuffles into different groupings each run, and no honest name can stick to a moving target. This is the unsupervised replacement for the train/test split you lost in session 1.</p>
+        <p>One honest paragraph our lab owes you: the lab pile is deterministic - seeded, frozen, guaranteed to reproduce - so its stability check will pass by construction. Real pipelines run against live customers, and real segments DRIFT: fresh arrivals mature into steady mid-baskets, VIPs lapse, a pandemic or a product launch rewrites the geometry. Real teams re-run the profiling quarterly and expect the sheet to change. Stability is something you check on a schedule, not something you establish once.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>When the re-run disagrees<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three outcomes of a stability check, and what each means. <strong>All segments reappear:</strong> ship, with the check cited as evidence. <strong>Most reappear, one dissolves:</strong> the dissolving one was probably a border population - consider k-1, or accept it as a soft segment and say so on its sheet. <strong>Little reappears:</strong> stop shipping. You were about to name initialization luck, and session 9 will show you how convincing that luck can look. The check costs minutes; the credibility it protects took the whole project to build.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE SEGMENT SHEET ============ -->
+  <section class="section" id="sheet">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the deliverable</span>
+      <h2>The segment sheet: what you actually ship 🥭 <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">The deliverable of a segmentation project is not a scatter plot and not a slide of five names. It is <strong>one page per segment</strong>: name, size, profile versus average, the campaign, the owner, the metric it should move, and a review date. Seven fields. A segment with all seven is a running piece of the business; a segment missing the last four is a chart. Session 4's actionability test said it first: unowned segments are charts, not segments.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 336" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Anatomy of a one-page segment sheet">
+        <style>
+          .ssH { font: 800 13px Inter, sans-serif; fill: #FFFFFF; }
+          .ssT { font: 700 12px Inter, sans-serif; fill: #221A2E; }
+          .ssX { font: 400 12px Inter, sans-serif; fill: #6B647D; }
+          .ssC { font: 700 12.5px Inter, sans-serif; fill: #581C87; }
+          .ssN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+          .ssA { stroke: #CCC5D9; stroke-width: 2.5; fill: none; marker-end: url(#ssAh); }
+        </style>
+        <defs>
+          <marker id="ssAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#CCC5D9" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="300" y="24" width="280" height="248" rx="12" fill="#F5EDFC"/>
+        <rect x="300" y="24" width="280" height="40" rx="12" fill="#581C87"/>
+        <text class="ssH" x="316" y="49">Lapsed big spenders</text>
+        <text class="ssT" x="316" y="90">Size: 50 customers</text>
+        <text class="ssT" x="316" y="116">Profile vs average:</text>
+        <text class="ssX" x="316" y="134">R ~225d (pile ~60) · ~$93 order</text>
+        <text class="ssT" x="316" y="162">Campaign: win-back series</text>
+        <text class="ssT" x="316" y="188">Owner: lifecycle marketing</text>
+        <text class="ssT" x="316" y="214">Metric: reactivation rate</text>
+        <text class="ssT" x="316" y="240">Review: quarterly</text>
+        <text class="ssC" x="120" y="48">the claim</text>
+        <line class="ssA" x1="192" y1="44" x2="294" y2="44"/>
+        <text class="ssC" x="98" y="132">the evidence</text>
+        <line class="ssA" x1="192" y1="128" x2="310" y2="128"/>
+        <text class="ssC" x="112" y="160">the action</text>
+        <line class="ssA" x1="192" y1="156" x2="310" y2="156"/>
+        <text class="ssC" x="618" y="188">the accountability</text>
+        <line class="ssA" x1="612" y1="184" x2="590" y2="184"/>
+        <text class="ssC" x="618" y="214">the scoreboard</text>
+        <line class="ssA" x1="612" y1="210" x2="590" y2="210"/>
+        <text class="ssC" x="618" y="240">the expiry date</text>
+        <line class="ssA" x1="612" y1="236" x2="590" y2="236"/>
+        <rect x="20" y="300" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="ssN" x="44" y="312">No owner = a chart. No metric = a hope. No review date = a sheet that quietly goes stale.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one page per segment: claim, evidence, action, accountability, scoreboard, expiry</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>One full example row: the win-back sheet<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Here is the complete Mango Lane sheet for one segment, every field filled:</p>
+        <table class="clean">
+          <tr><th>Field</th><th>Lapsed big spenders</th></tr>
+          <tr><td>Size</td><td>50 customers</td></tr>
+          <tr><td>Profile vs average</td><td>R ~225 days against a pile average near 60 · ~$93 avg order, well above the $68 pile AOV</td></tr>
+          <tr><td>Campaign</td><td>Win-back series - a sequence, not one email, because 225 days of silence takes more than one touch</td></tr>
+          <tr><td>Owner</td><td>Lifecycle marketing</td></tr>
+          <tr><td>Metric</td><td>Reactivation rate - the share who place an order again</td></tr>
+          <tr><td>Review</td><td>Quarterly - lapsed customers either come back or become churn; this segment should shrink if the campaign works</td></tr>
+        </table>
+        <p>Notice what the metric field does: it makes the segmentation falsifiable one level up. If reactivation does not move, either the campaign is weak or the segment was not real - and the review date guarantees somebody has to ask which. The sheet is the segmentation's contract with reality.</p>
+      </div>
+    </details>
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The meeting version: five sheets, one slide<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The sheets are the working artifact; the meeting gets a compression of them. One summary slide: five rows, columns for name, size, the single standout number versus the pile average, campaign, and owner - with the full sheets as appendix pages nobody reads but everybody trusts for existing. Lead with share of revenue where it is dramatic (the VIP row usually is), and give every row its one-sentence pitch from the demo below. The discipline transfers: if a segment cannot survive compression to one honest row, it was not ready to ship - and if a stakeholder challenges a row, the appendix sheet answers with the evidence, the owner, and the review date already attached.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO: BUILD THE SHEET ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Everyone ships</span>
+      <h2>Build the segment sheet 🥭 <span class="tag demo">★ 20 min · paper and pen, five pages</span></h2>
+    </div>
+    <p class="lede">No widget today - the deliverable session is done the way the deliverable is done at work: on a page. You have everything you need from the course so far: the validated clustering, the canon profiles, and the three moves from today. Build all five sheets.</p>
+    <div class="steps">
+      <div class="step"><p><strong>Take the five validated clusters</strong> from session 4's lab: k=5 on the scaled pile, silhouette 0.68, every segment fundable. Write the five cluster ids across the top of your page - ids, not names, not yet.</p></div>
+      <div class="step"><p><strong>Profile each against the pile average</strong> using the canon numbers: 55 at F ~22 and ~$115 · 90 at F ~9 and ~$70 · 60 at F ~1.2 and ~$98 · 45 at F ~3 and ~$45 · 50 at R ~225 days and ~$93. The pile: 300 customers, AOV $68, average recency near 60 days. Write one contrastive sentence per cluster - "more X than the pile, less Y".</p></div>
+      <div class="step"><p><strong>Draft a falsifiable name per segment.</strong> Apply the test: could the data prove this name wrong? "Lapsed big spenders" risks two claims and survives both. If your name mentions age, income, or taste, cross it out - no column testifies to those.</p></div>
+      <div class="step"><p><strong>Attach campaign, owner, and metric</strong> to every sheet. Canon campaigns to react against: VIP perks · mid-basket upsell · gifter occasion nudges · fresh-arrival welcome flow · lapsed win-back. For each, name a plausible owning team and the one metric that would prove the campaign worked.</p></div>
+      <div class="step"><p><strong>Mark each segment's biggest risk.</strong> Example: gifters are seasonal - a segment profiled in December may deflate by February, so their sheet says "reprofile after gifting season". Fresh arrivals mature by definition; VIPs concentrate revenue risk. Every sheet gets one honest weakness.</p></div>
+      <div class="step"><p><strong>Write the one-sentence pitch per segment</strong> for the marketing meeting: name, size, the standout number, the action. "Fifty lapsed big spenders - $93 baskets, silent for 225 days - get the win-back series, and lifecycle marketing reports reactivation quarterly." If the sentence works out loud, the sheet is done.</p></div>
+    </div>
+    <div class="callout tip">
+      <strong>✦ Keep the five sheets</strong>
+      The capstone (session 10) runs the full pipeline end to end and finishes on exactly this artifact. Comparing today's hand-built sheets against your capstone output - and against the planted truth the lab finally reveals - closes the loop the hand-sort opened in session 1.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Before next session</span>
+      <h2>Homework 📝 <span class="tag exercise">◐ 20 minutes</span></h2>
+    </div>
+    <ul>
+      <li><strong>Audit one named segment in your own organization</strong> (a tier, a persona, a user type). Does its name claim anything the underlying data cannot testify to? Write the falsifiable version of the name, even if you never send it to anyone.</li>
+      <li><strong>Fill in the missing fields:</strong> for that same segment, try to name its owner, its metric, and its last review date. Each blank you cannot fill is the distance between a chart and a segment.</li>
+      <li><strong>Design a stability check you could actually run:</strong> one paragraph - what you would resample, what "the same segments reappeared" would look like, and what result would make you refuse to ship.</li>
+    </ul>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Why must validation come BEFORE naming?</p>
+      <button class="qopt" type="button">A · because names are hard to change in the database</button>
+      <button class="qopt" type="button">B · because a name is a claim that stops being questioned once it ships - and the brain will happily write a persona for noise if the evidence step is skipped</button>
+      <button class="qopt" type="button">C · because validation algorithms require unnamed clusters as input</button>
+      <p class="qwhy">Names outlive their evidence. Once "VIP regulars" is in a deck, nobody re-checks the silhouette - so the checking has to happen while the group is still an id. Naming noise is dangerously fun; sequence is the discipline.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · A stability check means...</p>
+      <button class="qopt" type="button">A · running the clustering on a faster machine to confirm the same runtime</button>
+      <button class="qopt" type="button">B · checking that the silhouette score is stable to three decimal places</button>
+      <button class="qopt" type="button">C · re-running the clustering on a subsample and checking whether the same personas reappear - structure that is real survives resampling</button>
+      <p class="qwhy">Drop a slice of the pile, cluster again, profile again. Real segments come back with wobbling counts but stable characters; lucky slicings shuffle. It is the unsupervised stand-in for the train/test split - and on live data it is repeated on a schedule, because segments drift.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · What makes a segment "shipped" rather than just presented?</p>
+      <button class="qopt" type="button">A · an owner, a campaign, and a metric attached to it - a name alone is a chart, not a segment</button>
+      <button class="qopt" type="button">B · a memorable name and a color on the dashboard</button>
+      <button class="qopt" type="button">C · a silhouette score above 0.6</button>
+      <p class="qwhy">The segment sheet's last four fields - campaign, owner, metric, review date - are what connect the math to the business. Without them nothing can succeed or fail, which means nothing was actually shipped.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ SOURCES COVERED ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Coverage, honestly</span>
+      <h2>What this session covered from the official universe</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Google ML Clustering course - "evaluating results"</span><span class="note">the check-clusters-against-expected-behavior step, extended into the full profiling and stability practice</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">RFM segmentation practice</span><span class="note">profiling and naming on RFM features, the direct-mail lineage completed into modern persona work</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Practitioner canon - the segment sheet</span><span class="note">name/size/profile/campaign/owner/metric/review; field practice from working segmentation teams, honestly not from any one official syllabus</span></div>
+    </div>
+    <p>Certificates, videos, and graded assessments stay with the official providers - this course teaches the working core with a live in-browser lab. Full source map in the repo's <em>materials/official-course-map.md</em>.</p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 7 cheat sheet</h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The three moves</b><span>Profile → name → sheet. Each one a translation step; each one a place where analysis can become fiction.</span></div>
+      <div class="cheat-item"><b>Profiling table</b><span>Per segment: size, mean R/F/M, share of revenue - every cell read AGAINST the pile average. Comparison, not description.</span></div>
+      <div class="cheat-item"><b>The five, profiled</b><span>VIP 55 (F~22, $115) · steady 90 (F~9, $70) · gifters 60 (F~1.2, $98) · fresh 45 (F~3, $45) · lapsed 50 (R~225d, $93).</span></div>
+      <div class="cheat-item"><b>Names are claims</b><span>"VIP regulars" claims loyalty AND value - check both in the profile before the name sticks. Names outlive evidence.</span></div>
+      <div class="cheat-item"><b>Naming rules</b><span>Validate before naming · name from behavior, never demographic guesses · keep names falsifiable (data could prove them wrong).</span></div>
+      <div class="cheat-item"><b>Stability check</b><span>Re-run on a subsample: real structure survives resampling with the same personas. The unsupervised train/test ritual.</span></div>
+      <div class="cheat-item"><b>Drift is normal</b><span>Our lab is deterministic; real pipelines re-run quarterly and segments drift. Stability is a schedule, not a certificate.</span></div>
+      <div class="cheat-item"><b>The segment sheet</b><span>Name · size · profile vs avg · campaign · owner · metric · review date. Unowned segments are charts, not segments.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 7 of 10 · learn-unsupervised-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="u6-compressing-the-customer.html">← Prev: Compressing the customer</a> &nbsp;·&nbsp; <a href="u8-what-sells-together.html">Next: What sells together →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

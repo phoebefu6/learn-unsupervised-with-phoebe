@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 4 · Picking k: the question with no answer key - learn unsupervised with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-unsupervised-with-phoebe</a> / Session 4 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Unsupervised with Phoebe · Session 4 of 10</div>
+    <h1>Picking k: the question with <span class="accent">no answer key</span></h1>
+    <p class="sub">k-means demands you name the number of clusters before it runs - and the data will not simply tell you. This session gives you the one internal score worth trusting (silhouette), demotes the famous one (the elbow), adds the test no metric can do for you (can marketing fund a campaign per segment?), and then hands you a shiny button labeled "More segments!" so you can feel the trap snap shut yourself.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Building</span>
+      <span class="chip audience">Builder track</span>
+      <span class="chip audience">Lab session - the k dial is yours</span>
+      <span class="chip time">45 min + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Concepts</span>
+      <span class="a3" style="flex:4">20-40 · The k lab</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why this session exists</h2>
+    </div>
+    <p class="lede">Session 3 left one dial unexplained: k. Ask k-means for five clusters and it delivers five; ask for twelve and it delivers twelve, equally confident, on the same data. Somebody has to choose - and in most real projects that somebody negotiates with a stakeholder who "feels like" there should be three segments, or twelve, or one per product line. Today you get the evidence tools that turn that negotiation from taste into argument.</p>
+    <div class="legend">
+      <span class="pill solid">Live - covered in session</span>
+      <span class="pill light">Self-study - read after</span>
+      <span class="pill peach">✦ Lab moment</span>
+      <span class="pill inkpill">🥭 The Mango Lane case</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The silhouette score read fluently (what 0.68 versus 0.34 actually means), the elbow method filed where it belongs (named, understood, demoted), the actionability test that outranks both, and first-hand memory of the "more segments = more sophistication" trap failing in front of you.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: SILHOUETTE ============ -->
+  <section class="section" id="silhouette">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the score that works</span>
+      <h2>Silhouette: grading without an answer key <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">With no labels, a cluster quality score can only ask geometric questions. Silhouette asks the right one, per customer: <strong>are you close to your own cluster and far from the next-nearest one?</strong> Average that over everyone and you get one number between -1 and 1. It is the only mainstream clustering score that needs no ground truth - which is exactly why it is the one this course leans on.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Silhouette intuition: cohesion versus separation">
+        <style>
+          .siT { font: 700 14px Inter, sans-serif; fill: #221A2E; }
+          .siX { font: 400 12.5px Inter, sans-serif; fill: #6B647D; }
+          .siW { font: 800 15px Inter, sans-serif; fill: #FFFFFF; }
+          .siN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+          .siA { stroke: #CCC5D9; stroke-width: 2.5; fill: none; marker-end: url(#siAh); }
+        </style>
+        <defs>
+          <marker id="siAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#CCC5D9" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <circle cx="180" cy="120" r="72" fill="#F5EDFC" stroke="#A855F7" stroke-width="2"/>
+        <circle cx="160" cy="100" r="6" fill="#7E22CE"/><circle cx="200" cy="130" r="6" fill="#7E22CE"/>
+        <circle cx="170" cy="150" r="6" fill="#7E22CE"/><circle cx="205" cy="95" r="6" fill="#7E22CE"/>
+        <circle cx="185" cy="118" r="8" fill="#D97706"/>
+        <text class="siT" x="120" y="230">her own cluster</text>
+        <text class="siX" x="96" y="250">a = average distance to</text>
+        <text class="siX" x="96" y="266">her own teammates (small = cohesive)</text>
+        <circle cx="620" cy="120" r="72" fill="#FBF0DE" stroke="#D97706" stroke-width="2"/>
+        <circle cx="600" cy="100" r="6" fill="#A855F7"/><circle cx="640" cy="135" r="6" fill="#A855F7"/>
+        <circle cx="615" cy="150" r="6" fill="#A855F7"/><circle cx="650" cy="98" r="6" fill="#A855F7"/>
+        <text class="siT" x="560" y="230">the next-nearest cluster</text>
+        <text class="siX" x="536" y="250">b = average distance to the</text>
+        <text class="siX" x="536" y="266">nearest OTHER cluster (big = separated)</text>
+        <line class="siA" x1="262" y1="120" x2="540" y2="120"/>
+        <rect x="330" y="88" width="150" height="26" rx="13" fill="#581C87"/>
+        <text class="siW" x="352" y="106">s = (b - a) / max</text>
+        <rect x="20" y="292" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="siN" x="44" y="304">Near +1: snug at home, far from the neighbors. Near 0: sitting on a border. Negative: filed in the wrong cluster.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - silhouette per customer: cohesion (a) against separation (b)</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Reading the number like a practitioner<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Averages over the whole pile, rules of thumb that hold up:</p>
+        <table class="clean">
+          <tr><th>Average silhouette</th><th>Read</th></tr>
+          <tr><td>0.6 and up</td><td>Strong, well-separated structure - our scaled Mango Lane pile at k=5 scores 0.68</td></tr>
+          <tr><td>0.4 - 0.6</td><td>Real but soft structure; clusters exist, borders are busy</td></tr>
+          <tr><td>0.25 - 0.4</td><td>Weak - could be structure, could be noise wearing makeup. Session 9's uniform-noise pile scores 0.31 here</td></tr>
+          <tr><td>Below 0.25</td><td>Stop. You are probably slicing fog</td></tr>
+        </table>
+        <p>Two working habits: <strong>compare silhouettes across k on the same data</strong> (that comparison is today's lab - absolute thresholds are softer than relative ones), and <strong>when two k values score close, break the tie with the business, not the third decimal.</strong> On our pile k=4 scores 0.66 and k=5 scores 0.68 - the metric alone cannot pick that fight; the actionability test (part 3) can.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>scikit-learn's evaluation chapter lists half a dozen clustering metrics - adjusted Rand index, mutual information, homogeneity - and every one except silhouette requires ground-truth labels. They exist for benchmarking algorithms on labeled research datasets. On a real segmentation, silhouette is what you have. Learn one metric deeply; it is the one.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What silhouette cannot see<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Silhouette rewards compact, round, well-separated blobs - the same geometry k-means likes. On banana-shaped or nested clusters (session 5's moons) it under-scores structure DBSCAN finds easily. And it says nothing about usefulness: five geometrically perfect segments that all get the same campaign are still one segment to marketing. Treat it as a necessary check, never a sufficient one.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE ELBOW, DEMOTED ============ -->
+  <section class="section" id="elbow">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the famous heuristic</span>
+      <h2>The elbow method: named, understood, demoted <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">You will hear "just use the elbow method" in every clustering conversation of your career, so you need to know it - and know why this course does not trust it. The recipe: plot inertia (k-means' own objective, from session 3) against k, and pick the k where the curve stops dropping steeply - the "elbow".</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Elbow method on real structure versus noise">
+        <style>
+          .elT { font: 700 14px Inter, sans-serif; fill: #221A2E; }
+          .elX { font: 400 12.5px Inter, sans-serif; fill: #6B647D; }
+          .elN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+          .elL { stroke: #7E22CE; stroke-width: 3; fill: none; }
+          .elM { stroke: #D97706; stroke-width: 3; fill: none; stroke-dasharray: 6 4; }
+          .elAx { stroke: #CCC5D9; stroke-width: 1.5; }
+        </style>
+        <text class="elT" x="90" y="34">Data WITH structure (our pile)</text>
+        <line class="elAx" x1="60" y1="240" x2="400" y2="240"/>
+        <line class="elAx" x1="60" y1="60" x2="60" y2="240"/>
+        <path class="elL" d="M 80 80 L 130 130 L 180 180 L 230 210 L 280 222 L 330 228 L 380 232"/>
+        <circle cx="230" cy="210" r="9" fill="none" stroke="#D97706" stroke-width="3"/>
+        <text class="elX" x="205" y="262">k=5: a visible bend</text>
+        <text class="elX" x="60" y="282">inertia falls fast while splits separate real groups, then flattens</text>
+        <text class="elT" x="540" y="34">Pure NOISE (no structure at all)</text>
+        <line class="elAx" x1="500" y1="240" x2="840" y2="240"/>
+        <line class="elAx" x1="500" y1="60" x2="500" y2="240"/>
+        <path class="elM" d="M 520 80 L 570 122 L 620 155 L 670 180 L 720 199 L 770 213 L 820 224"/>
+        <text class="elX" x="560" y="262">a smooth 1/k slide - yet eyes still "find" elbows in it</text>
+        <text class="elX" x="500" y="282">inertia always falls; "bendy" needs no structure</text>
+        <rect x="20" y="292" width="0" height="0" fill="none"/>
+        <rect x="60" y="292" width="0" height="0" fill="none"/>
+      </svg>
+      <figcaption>🔍 Click to zoom - the elbow on structure vs the pseudo-elbow on noise</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the elbow flunks, in two sentences<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Sentence one:</strong> inertia mathematically always decreases as k grows (more centroids = shorter distances), so the plot always slopes down and flattens - even on uniform random noise, where researchers have shown the curve traces a smooth 1/k shape that human eyes happily read elbows into. <strong>Sentence two:</strong> "where the bend is" is a judgment call with no definition, so two analysts on the same plot pick different k and both cite "the elbow method" as their evidence.</p>
+        <p>The criticism is not fringe: a 2023 methods paper carries the title <em>"Stop using the elbow criterion for k-means"</em>, and the method's own Wikipedia page calls it subjective and unreliable. Know it because your colleagues will use it; demote it because you know what it does on noise.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>The honest hierarchy on a real project: silhouette comparison across k (evidence), then the actionability test (business), then the elbow plot (a slide for the appendix, because someone senior will ask where it is). All three point at k=5 on our pile - when they disagree, trust them in that order.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>If not the elbow, what do the pros plot?<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Silhouette-versus-k (today's lab plots it for you), and when stakes are high, a stability check: re-run the clustering on random subsamples and measure how often customer pairs stay together. Structure that is really there survives resampling; artifacts dissolve. Session 7 makes stability part of the shipping checklist.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: ACTIONABILITY ============ -->
+  <section class="section" id="actionability">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the test no metric can run</span>
+      <h2>The actionability test <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">Silhouette grades geometry. Nobody ships geometry. Mango Lane's marketing team will fund a welcome flow, a win-back push, a VIP perk - each needs an owner, a budget, and enough customers to move a number. That gives you a second, ruthless filter on k, and it is not negotiable just because it is not mathematical.</p>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Three questions per segment, asked out loud<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Is it big enough to fund?</strong> A 14-customer segment cannot pay for its own email template. Our lab flags anything under ~6% of the pile as "too small to fund" - your real threshold comes from your campaign economics.</li>
+          <li><strong>Would we treat it differently?</strong> If segments 3 and 7 both get "the discount email", they are one segment wearing two ids. Merge until every segment implies a distinct action.</li>
+          <li><strong>Can someone own it?</strong> A segment nobody claims in the campaign calendar is a chart, not a segment.</li>
+        </ul>
+        <p>Notice these questions cap k from above. The data's structure caps it from below (silhouette). The right k lives where both are satisfied - on our pile, that is 5, comfortably. When a stakeholder pushes for more "granularity", you now have two independent walls to point at.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>The k=12 failure mode has a corporate signature: a segmentation deck with twelve personas, each with a stock photo and a name like "Aspirational Anna" - and six months later, campaigns running against three of them. The other nine were silhouette 0.34 territory: real-looking, unfundable, unowned. Today's trap button compresses those six months into one click.</div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO: THE K LAB ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Everyone picks k</span>
+      <h2>The k lab 🎛 <span class="tag demo">★ 20 min · everyone turns the dial</span></h2>
+    </div>
+    <p class="lede">The lab below runs REAL k-means (best of five k-means++ restarts) on the scaled Mango Lane pile at every k you ask for, computes the REAL silhouette each time, and shows the segment table the way marketing would read it. The shiny amber button is a trap. Press it anyway - deliberately walking into it here is what keeps you out of it at work.</p>
+
+    <div id="cluster-live" data-mode="pick-k"></div>
+
+    <div class="steps">
+      <div class="step"><p><strong>Run every k.</strong> Read the silhouette-by-k curve: it climbs to a peak at k=5 (0.68) and slides off after. That peak is the data's own opinion about how many groups it contains.</p></div>
+      <div class="step"><p><strong>Inspect the neighbors.</strong> Slide to k=4 (0.66) and k=6, run each. Watch WHAT changes in the segment table: at 4, two behaviorally distinct groups merge; at 6, one real group splits into two rows that would get the same campaign. Close scores, visibly worse tables - this is why ties break on actionability, not decimals.</p></div>
+      <div class="step"><p><strong>Press ✨ More segments! (k=12).</strong> Feel the pull first - twelve segments genuinely sounds more sophisticated, more "granular", more like a premium consulting deliverable.</p></div>
+      <div class="step"><p><strong>Read the wreckage.</strong> Silhouette fell off a cliff: 0.68 to 0.34 - noise territory (session 9 will show you actual noise scoring 0.31). The table now has three segments flagged "too small to fund" and several rows whose R/F/M profiles a marketer could not tell apart. Same 300 customers, cut thinner, knowing less.</p></div>
+      <div class="step"><p><strong>Note what did NOT fall: the truth match.</strong> Still 100% - twelve slices of five real groups still respect the real borders, so purity holds while usefulness dies. A score can stay green while the deliverable rots; this is why no single number gets the final word.</p></div>
+      <div class="step"><p><strong>Come home to k=5 and say the sentence out loud:</strong> "silhouette peaks at five, every segment is fundable and distinct - the data supports five and the business can staff five." That sentence, with the two walls behind it, is the deliverable of this session.</p></div>
+    </div>
+    <div class="callout tip">
+      <strong>✦ The honest wobble</strong>
+      k=4 at 0.66 versus k=5 at 0.68 is NOT a landslide, and pretending otherwise is its own kind of lie. The honest read: the data clearly supports four-or-five, the extra segment at five is behaviorally real (the fresh arrivals separate from the steady middle), and marketing wants the welcome flow. Evidence narrows the field; judgment - stated as judgment - makes the call.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Before next session</span>
+      <h2>Homework 📝 <span class="tag exercise">◐ 20 minutes</span></h2>
+    </div>
+    <ul>
+      <li><strong>Defend a different k:</strong> write three sentences arguing for k=4 on our pile (it is defensible!). Feeling how easy the argument is to make is the best vaccine against trusting your own first pick too much.</li>
+      <li><strong>Find a segmentation at work and count its segments.</strong> Ask (or guess): what evidence chose that number? If the answer is "there have always been four tiers", you have found a k chosen by history - common, and worth knowing.</li>
+      <li><strong>Revisit your session-1 hand-sort:</strong> how many groups did you make? Given today's tools, would you defend that number with silhouette-style evidence, actionability logic, or admit it was vibes? All three answers are instructive.</li>
+    </ul>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · A customer's silhouette value is near +1 when...</p>
+      <button class="qopt" type="button">A · her cluster is one of many small clusters</button>
+      <button class="qopt" type="button">B · she is exactly between two clusters</button>
+      <button class="qopt" type="button">C · she is close to her own cluster's members and far from the next-nearest cluster</button>
+      <p class="qwhy">Cohesion small (a), separation big (b), s = (b - a) / max(a, b) approaches 1. Near 0 = on a border; negative = probably filed in the wrong cluster.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · The core problem with the elbow method is...</p>
+      <button class="qopt" type="button">A · inertia always falls as k grows, so a downward-bending curve appears even on pure noise - and "the bend" is a judgment call</button>
+      <button class="qopt" type="button">B · it requires ground-truth labels most projects lack</button>
+      <button class="qopt" type="button">C · it is too computationally expensive to run</button>
+      <p class="qwhy">More centroids always means shorter distances - the curve slopes down on anything, including noise, and where it "bends" has no definition. Hence the 2023 paper literally titled "Stop using the elbow criterion for k-means".</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · At k=12 the lab's truth match stayed 100% while silhouette crashed to 0.34. The lesson is...</p>
+      <button class="qopt" type="button">A · k=12 is actually fine, since purity held</button>
+      <button class="qopt" type="button">B · a segmentation can respect the real group borders and still be useless - thin slices score pure while being unfundable and indistinct</button>
+      <button class="qopt" type="button">C · silhouette is broken and should be ignored</button>
+      <p class="qwhy">Twelve slices of five real groups never mix truths - purity survives - but three segments could not fund a campaign and several were behaviorally identical. Geometry green, business dead: no single metric gets the final word.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ SOURCES COVERED ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Coverage, honestly</span>
+      <h2>What this session covered from the official universe</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">scikit-learn clustering evaluation - silhouette coefficient</span><span class="note">definition, range, and its status as the one mainstream metric needing no ground truth</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Andrew Ng ML Specialization c3 w1 - "choosing the number of clusters"</span><span class="note">the k question framed; Ng's downstream-purpose advice extended into our actionability test</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Elbow-method criticism (Schubert 2023, "Stop using the elbow criterion")</span><span class="note">named, mechanism explained, demoted with the fake-elbows-on-noise evidence</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Google ML Clustering - "evaluating results"</span><span class="note">the similarity-of-treatment lens; full workflow lands in sessions 7 and 10</span></div>
+    </div>
+    <p>Certificates, videos, and graded assessments stay with the official providers - this course teaches the working core with a live in-browser lab. Full source map in the repo's <em>materials/official-course-map.md</em>.</p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 4 cheat sheet</h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Silhouette</b><span>Per point: (b - a) / max(a, b). Cohesion vs separation, -1 to 1, no labels needed. The score to learn deeply.</span></div>
+      <div class="cheat-item"><b>Reading it</b><span>0.6+ strong (our k=5: 0.68) · 0.4-0.6 soft but real · 0.25-0.4 suspicious (noise scores 0.31) · below 0.25 stop.</span></div>
+      <div class="cheat-item"><b>The elbow</b><span>Inertia-vs-k bend. Always slopes down, bends on pure noise, bend location undefined. Know it, demote it.</span></div>
+      <div class="cheat-item"><b>The hierarchy</b><span>Silhouette comparison (evidence) → actionability (business) → elbow (appendix slide someone will ask for).</span></div>
+      <div class="cheat-item"><b>Actionability test</b><span>Per segment: big enough to fund? treated differently? owned by someone? Caps k from above; data caps from below.</span></div>
+      <div class="cheat-item"><b>The k-trap</b><span>k=12: silhouette 0.68 → 0.34, three unfundable segments, indistinguishable rows. Granularity is not insight.</span></div>
+      <div class="cheat-item"><b>The purity surprise</b><span>Truth match held 100% at k=12 - respecting real borders while useless. No single metric gets the final word.</span></div>
+      <div class="cheat-item"><b>The sentence</b><span>"Silhouette peaks at five; every segment is fundable and distinct." Evidence narrows, stated judgment decides.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 4 of 10 · learn-unsupervised-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="u3-kmeans-from-the-inside.html">← Prev: k-means from the inside</a> &nbsp;·&nbsp; <a href="u5-beyond-kmeans.html">Next: Beyond k-means →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+<script src="../assets/cluster-live.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 1 · The pile with no labels - learn unsupervised with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-unsupervised-with-phoebe</a> / Session 1 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Unsupervised with Phoebe · Session 1 of 10</div>
+    <h1>The pile with <span class="accent">no labels</span></h1>
+    <p class="sub">Mango Lane's marketing team has 12,000 customers and one request: "give us segments we can actually campaign to." Nobody attached a label to anyone. There is no right answer in the back of the book - and that changes everything about how you work. Today: what unsupervised learning actually is, the three-number portrait we will draw of every customer, and the mindset shift that separates people who cluster well from people who name noise.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Easiest</span>
+      <span class="chip audience">Builder track</span>
+      <span class="chip audience">No code required - the lab runs in your browser</span>
+      <span class="chip time">45 min + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-22 · Concepts</span>
+      <span class="a3" style="flex:4">22-40 · Hand-sort</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why this session exists</h2>
+    </div>
+    <p class="lede">Most machine learning courses start where the labels are: here is a spam email, here is a not-spam email, learn the difference. Real business data mostly is not like that. Customers do not arrive stamped with their segment, transactions do not announce which ones belong together, and nobody has time to hand-label 12,000 people. Unsupervised learning is the craft of finding structure anyway - and because there is no answer key, it is also the corner of ML where confident nonsense is easiest to produce. This course teaches both the tools and the skepticism.</p>
+    <div class="legend">
+      <span class="pill solid">Live - covered in session</span>
+      <span class="pill light">Self-study - read after</span>
+      <span class="pill peach">✦ Lab moment</span>
+      <span class="pill inkpill">🥭 The Mango Lane case</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      A one-sentence definition of unsupervised learning you can defend, the RFM portrait (the three numbers that describe every Mango Lane customer from here to session 10), and the framing that will save you in session 9: clusters are imposed by the algorithm and validated by you - never simply "discovered".
+    </div>
+    <div class="callout tip">
+      <strong>The honesty rail (used all course)</strong>
+      Our lab customers are simulated with five planted segments - which is the only reason the lab can show you a "truth match" score. A real project NEVER gets that number; that is precisely what makes unsupervised work hard. Every metric and algorithm in the lab runs for real in your browser; the safety net of knowing the truth is the one luxury we admit is fake.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: NO LABELS, NO TEACHER ============ -->
+  <section class="section" id="no-teacher">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the working definition</span>
+      <h2>No labels, no teacher <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Supervised learning has a teacher: every training example carries the right answer, and the model is graded against it. Unsupervised learning is the same data with the answer column deleted. <strong>The algorithm's job shifts from "predict the label" to "find structure"</strong> - and your job shifts from measuring accuracy to judging whether the structure found is real and useful.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Supervised versus unsupervised learning compared">
+        <style>
+          .nlH { font: 800 17px Inter, sans-serif; fill: #FFFFFF; }
+          .nlT { font: 700 14px Inter, sans-serif; fill: #221A2E; }
+          .nlX { font: 400 12.5px Inter, sans-serif; fill: #6B647D; }
+          .nlN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <rect x="20" y="20" width="410" height="230" rx="14" fill="#F5EDFC"/>
+        <rect x="20" y="20" width="410" height="46" rx="14" fill="#581C87"/>
+        <text class="nlH" x="40" y="50">📖 Supervised - with a teacher</text>
+        <text class="nlT" x="40" y="96">Every row carries the right answer.</text>
+        <text class="nlX" x="40" y="118">"This email is spam. That one is not. Learn</text>
+        <text class="nlX" x="40" y="136">the pattern and predict the next one."</text>
+        <text class="nlT" x="40" y="170">You can be graded:</text>
+        <text class="nlX" x="40" y="192">accuracy, precision, recall - all comparisons</text>
+        <text class="nlX" x="40" y="210">against labels somebody supplied.</text>
+        <text class="nlX" x="40" y="236">The classification course lives here.</text>
+        <rect x="450" y="20" width="410" height="230" rx="14" fill="#FBF0DE"/>
+        <rect x="450" y="20" width="410" height="46" rx="14" fill="#7E22CE"/>
+        <text class="nlH" x="470" y="50">🧭 Unsupervised - no teacher</text>
+        <text class="nlT" x="470" y="96">Same table. Answer column deleted.</text>
+        <text class="nlX" x="470" y="118">"Here are 12,000 customers. Find the</text>
+        <text class="nlX" x="470" y="136">structure. We do not know what it is."</text>
+        <text class="nlT" x="470" y="170">Nobody can grade you:</text>
+        <text class="nlX" x="470" y="192">no accuracy exists. Internal scores (session 4)</text>
+        <text class="nlX" x="470" y="210">and business judgment replace the teacher.</text>
+        <text class="nlX" x="470" y="236">This course lives here.</text>
+        <rect x="20" y="272" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="nlN" x="44" y="284">Same math family, opposite epistemics: one is graded, the other must justify itself.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the answer column is the whole difference</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The three jobs unsupervised learning does<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Strip away the algorithm names and the field does three things to an unlabeled pile:</p>
+        <ul>
+          <li><strong>Group similar things</strong> - clustering. "Which customers behave alike?" Sessions 2-5, 7, and the capstone. This is the course's spine.</li>
+          <li><strong>Compress many features into few</strong> - dimensionality reduction. "Can 6 columns become 2 without losing the story?" Session 6.</li>
+          <li><strong>Find what goes together</strong> - association rules. "What do sneaker buyers also put in the basket?" Session 8.</li>
+        </ul>
+        <p>Everything else you have heard of in this space - anomaly detection, recommenders, topic models - is a cousin of these three, and where a cousin has its own course on this shelf, we will point instead of re-teach.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>Andrew Ng's famous ML specialization teaches exactly one clustering algorithm - k-means - and spends its depth on the objective, the initialization, and choosing k. The pros' secret is not knowing fifty algorithms; it is understanding one deeply enough to know when it is lying. This course follows that philosophy, then adds the two rivals (session 5) that cover k-means' blind spots.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What you lose when the labels go<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three comforts of supervised learning vanish, and each has a replacement you will learn:</p>
+        <table class="clean">
+          <tr><th>Lost</th><th>Why it matters</th><th>The replacement</th></tr>
+          <tr><td>Accuracy</td><td>No labels means nothing to be right against</td><td>Internal scores like silhouette (session 4)</td></tr>
+          <tr><td>The train/test split ritual</td><td>Nothing to hold out an answer for</td><td>Stability checks - re-run, does the structure hold? (session 7)</td></tr>
+          <tr><td>Knowing when you failed</td><td>A bad classifier scores badly; a bad clustering just... looks fine</td><td>Session 9, entirely: the ways clustering lies, and the checks that catch it</td></tr>
+        </table>
+        <p>Write this on a sticky note: <strong>in unsupervised work, the algorithm always succeeds - only the analyst can fail.</strong> The algorithm will hand you five clusters of anything, including pure noise. Session 9 proves that live.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the cousins live (the shelf map)<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Anomaly detection</strong> (the OTHER pillar of Ng's unsupervised week) has its own course: learn-anomaly-detection-with-phoebe, on the Lumen case. <strong>Recommenders</strong> live in learn-recommendation-with-phoebe. <strong>Where RFM features come from and why</strong> gets full treatment in learn-feature-engineering-with-phoebe. And the labeled half of the zoo - the ten supervised algorithms - is learn-classification-regression-with-phoebe. This course is the missing sibling: the unlabeled half.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE BRIEF AND THE PORTRAIT ============ -->
+  <section class="section" id="rfm">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the running case</span>
+      <h2>The brief, and the three-number portrait 🥭 <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">Our client all course: <strong>Mango Lane</strong>, the fashion app (average order $68, about $660K a month in GMV). Marketing's brief is one sentence: <em>"We treat 12,000 customers identically; give us segments we can campaign to."</em> Before any algorithm, someone had to decide how to DESCRIBE a customer as numbers. The retail industry solved this decades ago with three: <strong>RFM</strong>.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The RFM portrait of one Mango Lane customer">
+        <style>
+          .rfL { font: 800 26px Inter, sans-serif; fill: #FFFFFF; }
+          .rfT { font: 700 14px Inter, sans-serif; fill: #221A2E; }
+          .rfX { font: 400 12.5px Inter, sans-serif; fill: #6B647D; }
+          .rfN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+          .rfC { font: 800 15px Inter, sans-serif; fill: #581C87; }
+        </style>
+        <text class="rfC" x="20" y="34">Customer #4821, as the pipeline sees her:</text>
+        <rect x="20" y="52" width="266" height="150" rx="14" fill="#581C87"/>
+        <text class="rfL" x="40" y="92">R · 12</text>
+        <text class="rfL" x="40" y="126" style="font-size:15px">Recency</text>
+        <text class="rfX" x="40" y="228">days since her last order.</text>
+        <text class="rfX" x="40" y="246">Low = she was just here. High = drifting away.</text>
+        <rect x="306" y="52" width="266" height="150" rx="14" fill="#7E22CE"/>
+        <text class="rfL" x="326" y="92">F · 19</text>
+        <text class="rfL" x="326" y="126" style="font-size:15px">Frequency</text>
+        <text class="rfX" x="326" y="228">orders per year.</text>
+        <text class="rfX" x="326" y="246">The loudest signal of loyalty in the pile.</text>
+        <rect x="592" y="52" width="266" height="150" rx="14" fill="#A855F7"/>
+        <text class="rfL" x="612" y="92">M · 11,200</text>
+        <text class="rfL" x="612" y="126" style="font-size:15px">Monetary</text>
+        <text class="rfX" x="612" y="228">average order size... in CENTS.</text>
+        <text class="rfX" x="612" y="246">Billing speaks cents. Remember this.</text>
+        <rect x="20" y="278" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="rfN" x="44" y="290">Three numbers per customer, 300 sampled customers in the lab - that is the whole dataset. Simple is the point.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the RFM portrait: recency, frequency, monetary</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why these three numbers (and that suspicious cents column)<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>RFM - recency, frequency, monetary - is the standard retail customer portrait</strong>, in use since the direct-mail era: it is cheap to compute from any order table, each number has an obvious business meaning, and together they separate the loyal from the lapsed from the one-off far better than demographics do. The classic version even predates ML - marketers binned each into 5 levels and worked 125 cells by hand.</p>
+        <p>One detail to file away: our monetary column arrived from the billing system <strong>in cents</strong> - customer #4821's $112 average shows up as 11,200. Billing systems speak cents to avoid rounding errors, exports inherit it, and nobody thought to mention it. It looks harmless today. Session 2 is the story of how this one unit choice quietly breaks the entire analysis - and the one-line fix.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>Feature choice IS the analysis. Google's clustering course spends more time on "how do you define similarity" than on the algorithm itself - because k-means on badly chosen features produces perfectly confident garbage. If you ever wonder why data scientists obsess over feature engineering (there is a whole sibling course on it), unsupervised learning is exhibit A: no labels means no error signal to warn you the features are wrong.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Who is in the pile (you will meet them properly in session 7)<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Because the lab's customers are simulated, we can tell you what was planted: five behavioral archetypes - a small band of VIP regulars, a big middle of steady mid-basket shoppers, a crowd of one-time gift buyers, a stream of fresh arrivals, and a graveyard of lapsed big spenders. Your job across the next nine sessions is to recover them WITHOUT peeking: first badly (session 2, raw units), then perfectly (scaled features), then to validate that five is really the right count (session 4), name them (session 7), and ship campaigns against them (capstone). On a real project you would never know the truth; here the truth is the teaching instrument.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: IMPOSED, NOT DISCOVERED ============ -->
+  <section class="section" id="imposed">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the mindset</span>
+      <h2>"Discovered" is the wrong verb <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Every clustering write-up says the algorithm "discovered" segments. Here is the uncomfortable truth this course will demonstrate live in session 9: <strong>k-means always returns exactly k clusters, on any data whatsoever - including pure noise.</strong> Ask for five, receive five, always. The algorithm imposes structure; whether that structure was really there is a separate question that only validation can answer.</p>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The workflow that keeps you honest<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The whole course is one honest workflow, and you can memorize it today:</p>
+        <div class="steps">
+          <div class="step"><p><strong>Describe</strong> - choose features that capture the behavior you care about (RFM, today).</p></div>
+          <div class="step"><p><strong>Scale</strong> - put every feature on the same footing, or the biggest unit wins (session 2).</p></div>
+          <div class="step"><p><strong>Cluster</strong> - run the algorithm, understanding what it optimizes (sessions 3, 5).</p></div>
+          <div class="step"><p><strong>Validate</strong> - interrogate the result: is the structure real, is k right, does it survive a re-run? (sessions 4, 9).</p></div>
+          <div class="step"><p><strong>Name and act</strong> - turn cluster ids into personas with owners and campaigns; unnamed clusters are shelf-ware (session 7, capstone).</p></div>
+        </div>
+        <p>Notice validation comes BEFORE naming. Naming feels productive and is dangerously fun - the human brain will happily write a persona for a cloud of noise. Sequence is the discipline.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>scikit-learn's own documentation ships a demo titled "Demonstration of k-means assumptions" whose entire point is showing the algorithm confidently mis-clustering data that violates its assumptions - wrong k, stretched blobs, unequal sizes. When a library's official docs dedicate a page to "here is our tool producing convincing nonsense", believe them.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why this framing is worth being annoying about<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Segmentation results get presented to executives as facts about customers: "we have five types of customer." The honest sentence is "we chose to slice customers five ways, and here is the evidence the slicing is meaningful." The gap between those sentences is where budgets get wasted - campaigns built for segments that were artifacts of a unit choice or an arbitrary k. You will be the person in the room who knows which sentence is true. That is worth more than knowing another algorithm.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Everyone sorts</span>
+      <h2>Hand-sort the pile 🥭 <span class="tag demo">★ 18 min · everyone clusters by hand</span></h2>
+    </div>
+    <p class="lede">Before any algorithm touches the data, YOU be the algorithm. Below are twelve real rows from the lab's customer sample. Sort them into groups on paper - any number of groups you like. This exercise plants every intuition the next nine sessions formalize.</p>
+    <div class="steps">
+      <div class="step"><p><strong>Copy the twelve.</strong> #101 R12 F21 M11800 · #102 R28 F9 M7200 · #103 R31 F1 M9600 · #104 R19 F3 M4300 · #105 R240 F6 M9100 · #106 R25 F24 M11200 · #107 R35 F8 M6800 · #108 R41 F1 M10100 · #109 R15 F2 M4800 · #110 R198 F7 M9400 · #111 R29 F10 M7400 · #112 R22 F2 M4100. (R days, F orders/yr, M cents.)</p></div>
+      <div class="step"><p><strong>Sort them into groups.</strong> No rules - use your judgment. Give each group a nickname before moving on.</p></div>
+      <div class="step"><p><strong>Write down WHY.</strong> For each group: which number(s) did you actually look at? Most people discover they sorted almost entirely on one column - notice which.</p></div>
+      <div class="step"><p><strong>Compare with a neighbor</strong> (or re-sort tomorrow). Different groupings, both defensible - THIS is what "no ground truth" feels like. Note where you disagree and what evidence would settle it.</p></div>
+      <div class="step"><p><strong>Now try to place #105 and #110.</strong> Big spenders who vanished months ago: are they "high value" (money says yes) or "gone" (recency says yes)? Your answer depends on how much weight recency deserves versus money - which is EXACTLY the question feature scaling decides, next session, and the cents column has been quietly deciding it for you.</p></div>
+      <div class="step"><p><strong>Count your groups.</strong> Three? Five? Seven? You just chose k by intuition. Session 4 gives you the tools to defend that number to a skeptic.</p></div>
+    </div>
+    <div class="callout tip">
+      <strong>✦ Keep the paper</strong>
+      In the capstone you will re-meet these twelve customers with the full pipeline behind you. Comparing your hand-sort to the validated segmentation - and seeing where your eye beat the algorithm and where it fooled you - is the best 5 minutes of session 10.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Before next session</span>
+      <h2>Homework 📝 <span class="tag exercise">◐ 20 minutes</span></h2>
+    </div>
+    <ul>
+      <li><strong>Finish the hand-sort</strong> if the session ran short, including the WHY column - it is the input to session 2's opening discussion.</li>
+      <li><strong>Find one segmentation in your own work</strong> (customer tiers, user types, account bands). Write one sentence: was it clustered from data, or drawn by hand from judgment? Both are legitimate - knowing which is the point.</li>
+      <li><strong>Spot the unit trap in the wild:</strong> list the columns of any table you work with and mark the units (days, dollars, cents, counts, percents). Circle the column with the biggest raw numbers. Session 2 shows you what that column has been doing to every distance-based analysis it ever touched.</li>
+    </ul>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · The defining difference between supervised and unsupervised learning is...</p>
+      <button class="qopt" type="button">A · unsupervised algorithms are more advanced mathematics</button>
+      <button class="qopt" type="button">B · unsupervised data has no answer labels, so there is nothing to grade predictions against</button>
+      <button class="qopt" type="button">C · unsupervised learning only works on small datasets</button>
+      <p class="qwhy">Same table, answer column deleted. Everything else follows from that: no accuracy, no test-set ritual, and the burden of proof moves from the metric to the analyst.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · RFM describes each customer by...</p>
+      <button class="qopt" type="button">A · region, favorites, membership tier</button>
+      <button class="qopt" type="button">B · returns, feedback score, marketing consent</button>
+      <button class="qopt" type="button">C · recency of last order, frequency of orders, monetary size of orders</button>
+      <p class="qwhy">The classic retail portrait - cheap to compute from any order table, obviously meaningful, and separating loyal from lapsed from one-off since the direct-mail era.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · You run k-means asking for 5 clusters on data that has no real structure at all. What happens?</p>
+      <button class="qopt" type="button">A · it returns 5 clusters anyway, looking perfectly confident</button>
+      <button class="qopt" type="button">B · it returns an error saying no clusters exist</button>
+      <button class="qopt" type="button">C · it returns 1 cluster containing everything</button>
+      <p class="qwhy">k-means partitions - it never refuses. Ask for five, receive five, on anything including pure noise. Clusters are imposed by the algorithm and validated (or exposed) by you; session 9 runs this exact experiment live.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ SOURCES COVERED ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Coverage, honestly</span>
+      <h2>What this session covered from the official universe</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Andrew Ng ML Specialization course 3, week 1 - "What is clustering"</span><span class="note">the supervised/unsupervised split and clustering's job, taught through the Mango Lane brief</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">RFM segmentation (standard retail practice)</span><span class="note">the three-number portrait, its direct-mail lineage, and why feature choice is the analysis</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Google ML Clustering course - overview + similarity framing</span><span class="note">similarity design introduced; the full treatment lands in session 2</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">scikit-learn "k-means assumptions" demo</span><span class="note">named as evidence for imposed-not-discovered; run live in session 9</span></div>
+    </div>
+    <p>Certificates, videos, and graded assessments stay with the official providers - this course teaches the working core with a live in-browser lab. Full source map in the repo's <em>materials/official-course-map.md</em>.</p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 1 cheat sheet</h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Unsupervised learning</b><span>Finding structure in data with no answer labels. Nothing to grade against - judgment replaces the metric.</span></div>
+      <div class="cheat-item"><b>The three jobs</b><span>Group similar things (clustering) · compress features (dim reduction) · find co-occurrence (association rules).</span></div>
+      <div class="cheat-item"><b>What you lose</b><span>Accuracy, the test-set ritual, and automatic failure alarms. Replacements: silhouette, stability checks, session 9.</span></div>
+      <div class="cheat-item"><b>RFM</b><span>Recency (days since last order) · Frequency (orders/yr) · Monetary (avg order size). The standard retail portrait.</span></div>
+      <div class="cheat-item"><b>The planted trap</b><span>Monetary arrived in CENTS from billing. Harmless-looking. Session 2 shows it silently owning the analysis.</span></div>
+      <div class="cheat-item"><b>The sticky note</b><span>The algorithm always succeeds; only the analyst can fail. Five clusters of noise look exactly like five clusters of truth.</span></div>
+      <div class="cheat-item"><b>The workflow</b><span>Describe → scale → cluster → validate → name and act. Validation BEFORE naming - naming noise is dangerously fun.</span></div>
+      <div class="cheat-item"><b>The honesty rail</b><span>The lab's "truth match" score exists only because the data is simulated. Real projects never get one - that is the job.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 1 of 10 · learn-unsupervised-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← All sessions</a> &nbsp;·&nbsp; <a href="u2-what-similar-means.html">Next: What "similar" means →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

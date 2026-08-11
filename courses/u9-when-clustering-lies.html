@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 9 · When clustering lies: noise, artifacts, and the courage not to cluster - learn unsupervised with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-unsupervised-with-phoebe</a> / Session 9 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Unsupervised with Phoebe · Session 9 of 10</div>
+    <h1>When clustering <span class="accent">lies</span></h1>
+    <p class="sub">Since session 1 there has been a sticky note on this course: "the algorithm always succeeds - only the analyst can fail." Every session since has added a tool; this one adds the immune system. Today you watch k-means succeed at absolutely nothing - five confident, colorful segments carved out of pure random noise - and you learn the tells that separate structure from theater. Then the hardest skill of all: recognizing the projects where the honest deliverable is "we chose not to cluster."</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Deepening</span>
+      <span class="chip audience">Builder track</span>
+      <span class="chip audience">The skeptic session</span>
+      <span class="chip time">45 min + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Concepts</span>
+      <span class="a3" style="flex:4">20-40 · Cluster pure noise</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The session the whole course promised</h2>
+    </div>
+    <p class="lede">Eight sessions of building deserve one session of doubt. You now know how k-means thinks (session 3), how to pick k (session 4), what the rivals fix (session 5), and how to name and ship segments (session 7). What you have NOT yet seen is the failure mode that makes all of that necessary: a clustering that is wrong while looking exactly like every clustering that was right. There is no error message for this. There is only the analyst who thought to check - and this session is the checklist.</p>
+    <div class="legend">
+      <span class="pill solid">Live - covered in session</span>
+      <span class="pill light">Self-study - read after</span>
+      <span class="pill peach">✦ Lab moment</span>
+      <span class="pill inkpill">🥭 The Mango Lane case</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      A catalog of the four ways a clustering deceives, a skeptic's checklist of tells (led by the noise baseline: our real pile scores 0.68, pure noise scores 0.31), and the professional courage to say the sentence almost nobody says: "this data should not be clustered."
+    </div>
+    <div class="callout tip">
+      <strong>The honesty rail (used all course)</strong>
+      The lab can show you a "truth match" score only because our customers are simulated with five planted segments. Today's noise mode plants NOTHING - which is the whole point. On real data you never know which of those two worlds you are standing in; the tells below are how professionals find out.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE LIES, CATALOGED ============ -->
+  <section class="section" id="lies">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the failure modes</span>
+      <h2>The lies, cataloged <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">A clustering deceives in four distinct ways, and they are worth telling apart because each has a different cure. What they share is the property that makes this session necessary: <strong>every one of them produces output that looks exactly like success.</strong></p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The four ways a clustering deceives">
+        <style>
+          .liH { font: 800 13px Inter, sans-serif; fill: #FFFFFF; }
+          .liC { font: 800 15px Inter, sans-serif; fill: #581C87; }
+          .liX { font: 400 12px Inter, sans-serif; fill: #6B647D; }
+          .liN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <defs>
+          <marker id="liAh" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#CCC5D9"/>
+          </marker>
+        </defs>
+        <text class="liC" x="20" y="26">The gallery of lies - four clusterings that looked fine</text>
+        <!-- Panel 1: noise clusters -->
+        <rect x="20" y="40" width="200" height="195" rx="14" fill="#F5EDFC"/>
+        <rect x="20" y="40" width="200" height="32" rx="14" fill="#581C87"/>
+        <text class="liH" x="32" y="61">1 · Noise clusters</text>
+        <circle cx="60" cy="105" r="5" fill="#7E22CE"/><circle cx="80" cy="122" r="5" fill="#7E22CE"/><circle cx="55" cy="135" r="5" fill="#7E22CE"/>
+        <circle cx="125" cy="98" r="5" fill="#A855F7"/><circle cx="145" cy="115" r="5" fill="#A855F7"/><circle cx="132" cy="132" r="5" fill="#A855F7"/>
+        <circle cx="95" cy="160" r="5" fill="#D8B4FE"/><circle cx="120" cy="172" r="5" fill="#D8B4FE"/><circle cx="150" cy="158" r="5" fill="#D8B4FE"/>
+        <circle cx="102" cy="132" r="52" fill="none" stroke="#CCC5D9" stroke-dasharray="4 4"/>
+        <text class="liX" x="34" y="207">k-means partitions</text>
+        <text class="liX" x="34" y="223">anything, even noise</text>
+        <!-- Panel 2: wrong assumptions -->
+        <rect x="240" y="40" width="200" height="195" rx="14" fill="#F5EDFC"/>
+        <rect x="240" y="40" width="200" height="32" rx="14" fill="#7E22CE"/>
+        <text class="liH" x="252" y="61">2 · Wrong assumptions</text>
+        <ellipse cx="340" cy="135" rx="70" ry="22" transform="rotate(-25 340 135)" fill="#D8B4FE"/>
+        <line x1="340" y1="85" x2="340" y2="185" stroke="#D97706" stroke-width="2.5" stroke-dasharray="5 4"/>
+        <text class="liX" x="254" y="207">stretched blobs get</text>
+        <text class="liX" x="254" y="223">confident wrong cuts</text>
+        <!-- Panel 3: fake elbows -->
+        <rect x="460" y="40" width="200" height="195" rx="14" fill="#F5EDFC"/>
+        <rect x="460" y="40" width="200" height="32" rx="14" fill="#A855F7"/>
+        <text class="liH" x="472" y="61">3 · Fake elbows</text>
+        <path d="M480 95 Q520 150 560 165 T640 182" fill="none" stroke="#7E22CE" stroke-width="3"/>
+        <line x1="600" y1="120" x2="562" y2="158" stroke="#CCC5D9" stroke-width="2" marker-end="url(#liAh)"/>
+        <text class="liX" x="565" y="112">an elbow?</text>
+        <text class="liX" x="474" y="207">uniform noise still</text>
+        <text class="liX" x="474" y="223">traces a bendy curve</text>
+        <!-- Panel 4: artifact segments -->
+        <rect x="680" y="40" width="180" height="195" rx="14" fill="#F5EDFC"/>
+        <rect x="680" y="40" width="180" height="32" rx="14" fill="#581C87"/>
+        <text class="liH" x="692" y="61">4 · Artifacts</text>
+        <rect x="705" y="95" width="34" height="85" fill="#7E22CE"/>
+        <rect x="752" y="168" width="34" height="12" fill="#D8B4FE"/>
+        <rect x="799" y="172" width="34" height="8" fill="#D8B4FE"/>
+        <text class="liX" x="703" y="196">cents</text>
+        <text class="liX" x="694" y="212">a unit choice posing</text>
+        <text class="liX" x="694" y="228">as customer segments</text>
+        <rect x="20" y="262" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="liN" x="44" y="274">Four different lies, one shared property: every output looks exactly like a success.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the gallery of lies, one caricature per failure mode</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The four lies, one by one<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Lie 1 - noise still clusters.</strong> k-means partitions whatever you feed it. Ask for five clusters of pure random noise and you receive five clusters of pure random noise, colored and centered and ready for a deck. Today's lab is this lie, performed live.</li>
+          <li><strong>Lie 2 - assumption violations.</strong> Even on data with real structure, k-means assumes roughly round, similar-sized blobs. Feed it stretched (anisotropic) blobs, unequal variances, or the wrong k and it cuts confidently across the real boundaries. scikit-learn's own docs ship a demo of exactly this.</li>
+          <li><strong>Lie 3 - fake elbows.</strong> Session 4 demoted the elbow method; here is the reason at full strength. Even uniform random noise traces a bendy inertia curve, so "I see an elbow" is evidence of almost nothing (Schubert's 2023 critique: stop using the elbow criterion).</li>
+          <li><strong>Lie 4 - artifact segments.</strong> Sometimes the structure is real but manufactured by the pipeline: session 2's cents column invented wallet-band "segments" that were really a unit choice; session 4's k=12 sliced five real groups into twelve fundable-sounding shards. The data lied because we made it lie.</li>
+        </ul>
+        <div class="callout example"><span class="ex-pill">Real world</span>scikit-learn's "Demonstration of k-means assumptions" page is the rare official document whose entire purpose is showing the library's own tool producing convincing nonsense - wrong k, anisotropic blobs, unequal variances, each yielding tidy confident clusters that are wrong. When the maintainers of the most used ML library on earth dedicate a doc page to "here is our algorithm lying", the professional response is to memorize the page.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why lie 4 is the one that gets published<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Lies 1-3 are the algorithm's doing; lie 4 is yours. That makes it the most common in practice, because it survives review: the clusters ARE separable, the silhouette IS decent, and nothing on screen reveals that the separation traces a billing-system unit or an arbitrary k rather than customer behavior. The only defenses are the ones this course drilled: know your units (session 2), let the data pick k (session 4), and profile segments on features you did not cluster on (below). An artifact segment is a pipeline shadow - move the lamp and it moves with it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE TELLS ============ -->
+  <section class="section" id="tells">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the skeptic's checklist</span>
+      <h2>The tells <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">None of the four lies announces itself, so skeptics carry a checklist. Each tell is a question you can answer with an afternoon of work - and each one is a comparison, because in a world with no ground truth, <strong>a score only means something next to another score.</strong></p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The skeptic's checklist of four tells feeding one verdict">
+        <style>
+          .tlT { font: 700 14px Inter, sans-serif; fill: #221A2E; }
+          .tlX { font: 400 12px Inter, sans-serif; fill: #6B647D; }
+          .tlW { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .tlV { font: 400 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .tlN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <defs>
+          <marker id="tlAh" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#CCC5D9"/>
+          </marker>
+        </defs>
+        <rect x="20" y="40" width="430" height="56" rx="10" fill="#F5EDFC"/>
+        <text class="tlT" x="36" y="63">☐ Noise baseline</text>
+        <text class="tlX" x="36" y="83">same-shape random data: our pile 0.68 vs noise 0.31</text>
+        <rect x="20" y="106" width="430" height="56" rx="10" fill="#F5EDFC"/>
+        <text class="tlT" x="36" y="129">☐ Stability under resampling</text>
+        <text class="tlX" x="36" y="149">re-run on subsets: real structure survives, artifacts dissolve</text>
+        <rect x="20" y="172" width="430" height="56" rx="10" fill="#F5EDFC"/>
+        <text class="tlT" x="36" y="195">☐ Profile separation</text>
+        <text class="tlX" x="36" y="215">do segments differ on features you did NOT cluster on?</text>
+        <rect x="20" y="238" width="430" height="56" rx="10" fill="#F5EDFC"/>
+        <text class="tlT" x="36" y="261">☐ The shuffle question</text>
+        <text class="tlX" x="36" y="281">would a shuffled version of the data score about the same?</text>
+        <line x1="450" y1="68" x2="556" y2="150" stroke="#CCC5D9" stroke-width="2" marker-end="url(#tlAh)"/>
+        <line x1="450" y1="134" x2="556" y2="162" stroke="#CCC5D9" stroke-width="2" marker-end="url(#tlAh)"/>
+        <line x1="450" y1="200" x2="556" y2="178" stroke="#CCC5D9" stroke-width="2" marker-end="url(#tlAh)"/>
+        <line x1="450" y1="266" x2="556" y2="190" stroke="#CCC5D9" stroke-width="2" marker-end="url(#tlAh)"/>
+        <rect x="560" y="110" width="300" height="120" rx="14" fill="#581C87"/>
+        <text class="tlW" x="580" y="140">Evidence accumulates</text>
+        <text class="tlV" x="580" y="164">No single tell is a proof.</text>
+        <text class="tlV" x="580" y="182">Together they earn - or deny -</text>
+        <text class="tlV" x="580" y="200">the right to present segments</text>
+        <text class="tlV" x="580" y="218">as if they were real.</text>
+        <rect x="20" y="312" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="tlN" x="44" y="324">If your silhouette sits near the noise line, stop. The deck can wait; the baseline cannot.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four tells, one accumulating verdict</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Each tell as a working question<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <table class="clean">
+          <tr><th>Tell</th><th>The question</th><th>What real structure does</th></tr>
+          <tr><td>Noise baseline</td><td>Generate random data of the same shape and size, cluster it the same way. Where does its silhouette land?</td><td>Beats the baseline clearly: our real pile 0.68 vs noise 0.31. A score NEAR the noise line means stop.</td></tr>
+          <tr><td>Stability</td><td>Resample (drop 20%, re-run) several times. Do the same groups keep forming?</td><td>Real structure survives resampling; artifacts dissolve into different slices each run.</td></tr>
+          <tr><td>Profile separation</td><td>Compare segments on features you did NOT cluster on (device, category mix, region).</td><td>Real behavior groups usually differ on outside features too; noise slices do not.</td></tr>
+          <tr><td>The shuffle question</td><td>Shuffle each column independently (killing the correlations) and re-cluster. Similar score?</td><td>Real structure collapses when shuffled; if the score barely moves, the score never meant much.</td></tr>
+        </table>
+        <p>One honest paragraph before anyone gets comfortable: <strong>none of these is a proof.</strong> A clustering can pass every tell and still be a mediocre way to slice the business, or fail one tell for a fixable reason. They are evidence that accumulates - exactly the hierarchy session 4 taught for picking k, now applied to the bigger question of whether to trust the clustering at all.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>Read any published customer-segmentation case study and count the tells it reports. Most report none - no noise baseline, no stability check, no holdout profile - just a silhouette (sometimes) and five confident personas. That is not because practitioners ran the checks and omitted them; it is because a segmentation deck with no checks looks identical to one with them. Your homework tonight is exactly this audit, and it will change how you read vendor decks forever.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Building your own noise baseline<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The recipe is deliberately boring: match the shape (same number of rows and columns), match the ranges (uniform random within each feature's observed min-max, after the same scaling you applied to the real data), run the identical clustering with the identical k, and record the silhouette. Repeat a handful of times and keep the typical value. That number is your floor - the score confidence costs nothing to achieve. It is field practice rather than textbook doctrine, which is exactly why so few decks include it and why yours should.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The picture can lie too (a session 6 echo)<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Everything above is about scores; the plots have their own lie. Session 6 warned you and session 9 is where the warning belongs: <strong>t-SNE at low perplexity makes pure noise look clustered</strong> - tight, separated blobs, manufactured entirely by the projection (Distill's "How to Use t-SNE Effectively" demonstrates it interactively). And UMAP's own FAQ blesses clustering on its output only "with care," recommending density-based methods rather than k-means, because density is not preserved. The rule from session 6, restated for skeptics: projection pictures are for LOOKING, never for measuring - a beautiful 2D scatter of clusters is a hypothesis, not a tell. The scores above, with their baselines, are the tells.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE COURAGE NOT TO CLUSTER ============ -->
+  <section class="section" id="courage">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the hardest call</span>
+      <h2>The courage not to cluster <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">The most senior skill in this course is not an algorithm. It is looking at a dataset, running the tells, and writing the memo that says <strong>"we chose not to cluster - here is what we did instead."</strong> Four situations call for it.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>When NOT to cluster<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Continuous gradients.</strong> Customer value is often a smooth ramp, not clumps. Clustering a ramp manufactures boundaries that exist nowhere in the data; percentile tiers (top 10%, next 40%, rest) are honest, simple, and easier to maintain than fake clusters.</li>
+          <li><strong>Tiny samples.</strong> A few dozen rows cannot support stable clusters - every tell fails, every re-run reshuffles. Sort, eyeball, and use judgment; say so.</li>
+          <li><strong>One-dimensional structure.</strong> If one feature carries the story, sort by it. A clustering of six features that secretly follows one of them is a complicated way to hide a ranking.</li>
+          <li><strong>The decision is already made.</strong> If the campaigns were designed before the analysis, the segmentation is theater - it can only bless or be ignored. Decline politely; theater has no noise baseline.</li>
+        </ul>
+        <p>And one for the survivors: <strong>drift.</strong> Real pipelines re-run, and segments move - customers lapse, freshen, upgrade. Schedule reprofiling, alert when segment migration spikes, and honor the review date you wrote on session 7's segment sheet. A segmentation without a review date is a lie with a delay.</p>
+        <div class="callout tip">
+          <strong>The two-sentence memo</strong>
+          "We evaluated clustering on [data]; scores sat near a noise baseline and did not survive resampling, consistent with a continuous gradient rather than distinct groups. We recommend percentile tiers on [feature], reviewed quarterly." Practice it - the ability to write this without embarrassment is what this session is for.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The gradient test, in practice<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>How do you tell a gradient from clumps before running anything? Plot the histogram of the feature that matters most. Clumps show as multiple humps with gaps; a gradient shows as one smooth slope. Then run the tells: on a true gradient, k-means will still return your k groups (it always does), the silhouette will be modest, and above all the STABILITY check fails in a telltale way - the boundaries land somewhere different on every resample, because there is no gap for them to snap to. Moving boundaries on stable data is the gradient's fingerprint. When you see it, reach for percentile tiers and write the memo: they deliver the same operational value (differentiated treatment by level) without claiming groups that do not exist.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the weird stuff lives<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One question this session raises but does not answer: what about the points that belong to NO group - the fraud, the glitches, the one-in-a-thousand outliers? That is anomaly detection, the OTHER "find the weird stuff" toolkit and the second pillar of Ng's unsupervised week. It has its own full course on this shelf: <strong>learn-anomaly-detection-with-phoebe</strong> (the Lumen case). This course finds the groups; that one finds the exceptions. Together they are the two honest answers to "what is in this pile?"</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Everyone gets fooled once</span>
+      <h2>Cluster pure noise 🎛 <span class="tag demo">★ 18 min · everyone runs the lie</span></h2>
+    </div>
+    <p class="lede">The lab below runs the same REAL k-means (best of five k-means++ restarts) you have used all course - but the pile is different. This is the experiment session 1 promised: the algorithm succeeding at nothing, in front of you, beautifully.</p>
+
+    <div id="cluster-live" data-mode="noise"></div>
+
+    <div class="steps">
+      <div class="step"><p><strong>Look at the scatter first.</strong> These 300 points are uniform random noise - NOTHING was planted. No archetypes, no groups, no structure. This is the one dataset all course where we can promise you there is nothing to find.</p></div>
+      <div class="step"><p><strong>Press ▶ Run 5-means on noise.</strong> Five confident, colorful segments appear instantly. Centers, borders, member counts - every visual signal you have learned to associate with success, delivered at full confidence on nothing.</p></div>
+      <div class="step"><p><strong>Read the silhouette pair.</strong> Noise: 0.31. The real Mango Lane pile: 0.68. That comparison is the ONLY tell on screen - nothing else in the picture distinguishes this result from a real one. Sit with that for a moment.</p></div>
+      <div class="step"><p><strong>Imagine the deck you could still build.</strong> "Segment 3 skews high-monetary with moderate recency - we recommend a premium win-back push." Write one fake persona sentence of your own for any segment on screen. Feel how easy it is - your brain WANTS to narrate. That ease is the danger this session exists to vaccinate against.</p></div>
+      <div class="step"><p><strong>The discipline.</strong> Your project needs a noise baseline number BEFORE you present segments. Not after someone asks - before. It is one afternoon of work and it is the difference between the two decks in step 4.</p></div>
+      <div class="step"><p><strong>Say the sticky note out loud one more time:</strong> "the algorithm always succeeds - only the analyst can fail." You have now seen both halves of that sentence happen on the same screen.</p></div>
+    </div>
+    <div class="callout tip">
+      <strong>✦ Why 0.31 and not 0?</strong>
+      Even random points, once partitioned, are trivially closer to their own center than to others - that is what partitioning MEANS. Silhouette on noise does not read zero; it reads "mediocre but positive," which is exactly why an uncalibrated score is so dangerous and a baseline is so cheap by comparison.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Before next session</span>
+      <h2>Homework 📝 <span class="tag exercise">◐ 20 minutes</span></h2>
+    </div>
+    <ul>
+      <li><strong>Compute or estimate a noise baseline</strong> for one dataset you actually know: same shape, same scaling, same k, random values. If you cannot run code this week, estimate the shape and write down what you WOULD compare - the habit is the homework.</li>
+      <li><strong>Find one published segmentation</strong> (vendor deck, case study, internal report) and list which tells it reports: noise baseline, stability, holdout profile, anything. Most report none - which is the finding.</li>
+      <li><strong>Write the two-sentence "we chose not to cluster" memo</strong> for a gradient case you have seen (customer value, engagement, account size). Getting the tone right - factual, unapologetic, with the alternative attached - takes exactly one rehearsal.</li>
+    </ul>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · You run k-means with k=5 on data that is pure structureless noise. What comes back?</p>
+      <button class="qopt" type="button">A · an error, or one cluster holding everything</button>
+      <button class="qopt" type="button">B · five confident clusters that look exactly like a successful result</button>
+      <button class="qopt" type="button">C · five clusters, but flagged with a low-confidence warning</button>
+      <p class="qwhy">k-means partitions; it never refuses and never warns. Ask for five, receive five - centers, borders, and member counts included. The lab just showed you: nothing on screen except the baseline comparison reveals the difference.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Your clustering scores silhouette 0.35. What makes that number meaningful?</p>
+      <button class="qopt" type="button">A · nothing more is needed - 0.35 is positive, so the structure is real</button>
+      <button class="qopt" type="button">B · comparing it against the best score any algorithm gets on the data</button>
+      <button class="qopt" type="button">C · comparing it against a noise baseline of the same shape - and 0.35 sits suspiciously near noise's 0.31</button>
+      <p class="qwhy">A score only means something next to another score. Our real pile earns 0.68; pure noise earns 0.31. A 0.35 sitting on the noise line says stop - and without the baseline you would never know.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Which situation most clearly calls for NOT clustering?</p>
+      <button class="qopt" type="button">A · a smooth continuous gradient, a tiny sample, or a decision already made before the analysis</button>
+      <button class="qopt" type="button">B · data with more than three features</button>
+      <button class="qopt" type="button">C · any dataset where the first silhouette is below 0.7</button>
+      <p class="qwhy">Gradients want percentile tiers, tiny samples want judgment, and pre-made decisions make segmentation theater. Feature count is irrelevant, and 0.7 is not a universal bar - the noise baseline for YOUR data shape is.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ SOURCES COVERED ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Coverage, honestly</span>
+      <h2>What this session covered from the official universe</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">scikit-learn "Demonstration of k-means assumptions"</span><span class="note">the anisotropic/unequal-variance/wrong-k gallery, taught as lie 2 and run in spirit on the noise lab</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Elbow-on-noise criticism (Schubert 2023, "Stop using the elbow criterion")</span><span class="note">fake elbows as lie 3, completing session 4's demotion of the elbow method</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Noise baseline + stability checking</span><span class="note">taught as field practice, honestly labeled: practitioner discipline rather than textbook doctrine</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Anomaly detection (Ng's second unsupervised pillar)</span><span class="note">pointed, not taught - full treatment lives in learn-anomaly-detection-with-phoebe</span></div>
+    </div>
+    <p>Certificates, videos, and graded assessments stay with the official providers - this course teaches the working core with a live in-browser lab. Full source map in the repo's <em>materials/official-course-map.md</em>.</p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 9 cheat sheet</h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The four lies</b><span>Noise still clusters · assumption violations · fake elbows · artifact segments. All four look exactly like success.</span></div>
+      <div class="cheat-item"><b>Noise baseline</b><span>Cluster same-shape random data the same way. Our pile: 0.68 real vs 0.31 noise. Near the noise line = stop.</span></div>
+      <div class="cheat-item"><b>Stability</b><span>Resample and re-run. Real structure keeps forming the same groups; artifacts dissolve into different slices.</span></div>
+      <div class="cheat-item"><b>Profile separation</b><span>Real segments usually differ on features you did NOT cluster on. Noise slices do not.</span></div>
+      <div class="cheat-item"><b>No tell is proof</b><span>They are evidence that accumulates - session 4's hierarchy applied to the whole clustering, not just k.</span></div>
+      <div class="cheat-item"><b>When not to cluster</b><span>Gradients (use percentile tiers) · tiny samples · one-feature stories (just sort) · decisions already made (theater).</span></div>
+      <div class="cheat-item"><b>Drift</b><span>Segments move on re-run. Schedule reprofiling, alert on migration, honor the review date from session 7.</span></div>
+      <div class="cheat-item"><b>The sticky note, proven</b><span>The algorithm always succeeds - only the analyst can fail. You watched both halves happen on one screen.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 9 of 10 · learn-unsupervised-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="u8-what-sells-together.html">← Prev: What sells together</a> &nbsp;·&nbsp; <a href="u10-capstone-the-segmentation-project.html">Next: Capstone →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+<script src="../assets/cluster-live.js?v=1"></script>
+</body>
+</html>

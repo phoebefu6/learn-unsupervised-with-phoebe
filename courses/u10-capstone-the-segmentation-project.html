@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 10 · Capstone: the segmentation project, end to end - learn unsupervised with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-unsupervised-with-phoebe</a> / Session 10 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Unsupervised with Phoebe · Session 10 of 10</div>
+    <h1>Capstone: the segmentation project, <span class="accent">end to end</span></h1>
+    <p class="sub">Ten sessions ago Mango Lane's marketing team asked one sentence: "we treat 12,000 customers identically - give us segments we can campaign to." Today you answer it in four presses, then hand over the sheet. The capstone is deliberately short on new concepts - it is the whole course, compressed and rehearsed, because the compressed version is what you will actually perform at work: the twenty-minute walkthrough where a stakeholder watches you go from raw export to five named, owned, fundable segments without a single hand-wave.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Capstone</span>
+      <span class="chip audience">Builder track</span>
+      <span class="chip audience">Ship the segment sheet</span>
+      <span class="chip time">45 min + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · The pipeline recap</span>
+      <span class="a3" style="flex:5">15-40 · The four-press ladder</span>
+      <span class="a4" style="flex:1">40-45 · Graduation</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why the capstone is short on purpose</h2>
+    </div>
+    <p class="lede">Every skill in this course was taught slow: a full session on scaling, a full session on picking k, a full session on lies. Nobody at work will give you ten sessions. They will give you a meeting - and in that meeting, the value of everything you learned depends on whether you can run the whole pipeline as one fluent motion, narrating the evidence as you go. So today has one job: compress ten sessions into four presses and three sentences, and prove to yourself the compression holds.</p>
+    <div class="legend">
+      <span class="pill solid">Live - covered in session</span>
+      <span class="pill light">Self-study - read after</span>
+      <span class="pill peach">✦ Lab moment</span>
+      <span class="pill inkpill">🥭 The Mango Lane case</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The full ladder run end to end (raw 0.53/70% to scaled 0.68/100% to k=5 confirmed to five named segments), the segment sheet Mango Lane's marketing team actually receives, a graded rematch against your session-1 hand-sort, and the three-sentence executive summary that carries all of it.
+    </div>
+    <div class="callout tip">
+      <strong>The honesty rail, cashed out</strong>
+      This is the last session the "truth match" score exists. It was the teaching instrument - the luxury of knowing the planted answer. Part 3 is about what replaces it on real data, because from tomorrow onward, nothing will tell you 100%.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE PIPELINE, ONE BREATH ============ -->
+  <section class="section" id="pipeline">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the whole course</span>
+      <h2>The pipeline, one breath <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Session 1 gave you the workflow before you could fill it in: <strong>describe, scale, cluster, validate, name and act.</strong> Ten sessions later every station has a tool, a canon number, and a scar. Say the whole thing in one breath - that fluency is the credential.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The five-station pipeline with session numbers and canon numbers">
+        <style>
+          .cpH { font: 800 13px Inter, sans-serif; fill: #FFFFFF; }
+          .cpX { font: 400 11.5px Inter, sans-serif; fill: #FFFFFF; }
+          .cpC { font: 800 15px Inter, sans-serif; fill: #581C87; }
+          .cpN { font: 600 13.5px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <defs>
+          <marker id="cpAh" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#CCC5D9"/>
+          </marker>
+        </defs>
+        <text class="cpC" x="20" y="30">The whole course, five stations</text>
+        <rect x="20" y="50" width="152" height="130" rx="12" fill="#581C87"/>
+        <text class="cpH" x="34" y="76">1 · Describe</text>
+        <text class="cpX" x="34" y="100">RFM portrait (u1)</text>
+        <text class="cpX" x="34" y="118">3 numbers each,</text>
+        <text class="cpX" x="34" y="136">cents trap included</text>
+        <line x1="172" y1="115" x2="190" y2="115" stroke="#CCC5D9" stroke-width="2.5" marker-end="url(#cpAh)"/>
+        <rect x="192" y="50" width="152" height="130" rx="12" fill="#7E22CE"/>
+        <text class="cpH" x="206" y="76">2 · Scale</text>
+        <text class="cpX" x="206" y="100">z-score (u2)</text>
+        <text class="cpX" x="206" y="118">truth 70% to 100%</text>
+        <text class="cpX" x="206" y="136">sil 0.53 to 0.68</text>
+        <line x1="344" y1="115" x2="362" y2="115" stroke="#CCC5D9" stroke-width="2.5" marker-end="url(#cpAh)"/>
+        <rect x="364" y="50" width="152" height="130" rx="12" fill="#A855F7"/>
+        <text class="cpH" x="378" y="76">3 · Cluster</text>
+        <text class="cpX" x="378" y="100">k-means best-of-5</text>
+        <text class="cpX" x="378" y="118">(u3), inertia 92</text>
+        <text class="cpX" x="378" y="136">shape check (u5)</text>
+        <line x1="516" y1="115" x2="534" y2="115" stroke="#CCC5D9" stroke-width="2.5" marker-end="url(#cpAh)"/>
+        <rect x="536" y="50" width="152" height="130" rx="12" fill="#7E22CE"/>
+        <text class="cpH" x="550" y="76">4 · Validate</text>
+        <text class="cpX" x="550" y="100">k=5 at 0.68 (u4)</text>
+        <text class="cpX" x="550" y="118">k=12 trap: 0.34</text>
+        <text class="cpX" x="550" y="136">noise 0.31 (u9)</text>
+        <line x1="688" y1="115" x2="706" y2="115" stroke="#CCC5D9" stroke-width="2.5" marker-end="url(#cpAh)"/>
+        <rect x="708" y="50" width="152" height="130" rx="12" fill="#581C87"/>
+        <text class="cpH" x="722" y="76">5 · Name + act</text>
+        <text class="cpX" x="722" y="100">5 personas (u7)</text>
+        <text class="cpX" x="722" y="118">owners + campaigns</text>
+        <text class="cpX" x="722" y="136">rules 3.0x (u8)</text>
+        <rect x="20" y="212" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="cpN" x="44" y="224">u5 chose the algorithm by data shape, u6 drew the 2D view (PC1+PC2 = 86%) - support for stations 3-4.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - five stations, every one earned across ten sessions</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>One sentence per station<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <div class="steps">
+          <div class="step"><p><strong>Describe (u1):</strong> every customer became three numbers - RFM, the standard retail portrait - and the monetary column arrived in cents, a trap we did not see yet.</p></div>
+          <div class="step"><p><strong>Scale (u2):</strong> z-scaling put the three features on the same footing, and the truth match jumped 70% to 100% - the cents column had been deciding the whole analysis.</p></div>
+          <div class="step"><p><strong>Cluster (u3):</strong> Lloyd's loop, k-means++ init, best-of-5 restarts by inertia (ours settles near 92); u5 added the rivals - DBSCAN for weird shapes, GMM for soft borders, hierarchical for the dendrogram - and taught choosing by data shape.</p></div>
+          <div class="step"><p><strong>Validate (u4, u9):</strong> silhouette peaks at k=5 (0.68), the k=12 vanity press crashes to 0.34, and pure noise scores 0.31 - so 0.68 clears the noise line with room to spare. u6's PCA view (PC1+PC2 = 86% of variance) let us SEE the five groups in 2D.</p></div>
+          <div class="step"><p><strong>Name and act (u7, u8):</strong> cluster ids became five personas with owners, campaigns, and a review date; association rules added the cross-sell layer (white sneakers to crew socks, lift 3.0x).</p></div>
+        </div>
+        <div class="callout example"><span class="ex-pill">Real world</span>Andrew Ng's unsupervised course ends where its k-means week ends: the algorithm, the objective, choosing k. Everything after that - naming, owners, campaigns, review dates, the noise baseline - is the practitioner layer no MOOC grades, and it is precisely the layer stakeholders pay for. The pipeline above IS the deliverable skill; the algorithm was one station of five.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The scars, collected (what each station cost us)<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A pipeline recited without its failures is a brochure. Ours earned three scars worth keeping: the <strong>cents column</strong> (u2) - a harmless-looking unit choice that owned the whole analysis until one z-scaling line took the megaphone away; the <strong>unlucky start</strong> (u3) - a single random initialization locking at inertia 278 and 65% truth, cured by best-of-5 restarts; and the <strong>k=12 vanity press</strong> (u4) - twelve sophisticated-sounding segments scoring 0.34, three of them too small to fund. Each scar is a question you now ask automatically on any new project: what units? how many restarts? who chose this k, and with what evidence? That reflex is the course's real residue.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: READING THE FINAL TABLE ============ -->
+  <section class="section" id="table">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the deliverable</span>
+      <h2>Reading the final table like the client 🥭 <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Strip away every scatter plot and score, and what Mango Lane's marketing team actually receives is one artifact: <strong>the segment sheet</strong> - session 7's format, now with every row filled and defended.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The segment sheet, final form<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <table class="clean">
+          <tr><th>Segment</th><th>Size</th><th>Signature (from the 300-customer lab sample)</th><th>Campaign</th></tr>
+          <tr><td>VIP regulars</td><td>55</td><td>F about 22 orders/yr, $115 basket - the loyal core</td><td>Perks program</td></tr>
+          <tr><td>Steady mid-basket</td><td>90</td><td>F about 9, $70 basket - the big reliable middle</td><td>Upsell</td></tr>
+          <tr><td>One-time gifters</td><td>60</td><td>F about 1.2, $98 basket - bought once, spent well</td><td>Occasion nudges</td></tr>
+          <tr><td>Fresh arrivals</td><td>45</td><td>F about 3, $45 basket - new, still deciding</td><td>Welcome flow</td></tr>
+          <tr><td>Lapsed big spenders</td><td>50</td><td>R about 225 days, $93 basket - valuable and gone</td><td>Win-back</td></tr>
+        </table>
+        <p>Read it the way the client will: five rows, each with a size worth funding, a signature a marketer can picture, and a campaign someone owns. No silhouettes on this page - the scores live in the appendix, the decisions live here. That separation is deliberate: the sheet is for acting, the appendix is for auditing.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Presenting honestly<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three disciplines turn a good analysis into a trustworthy presentation:</p>
+        <ul>
+          <li><strong>Lead with what the evidence supports.</strong> "Silhouette peaks at five and clears the noise baseline" comes before any persona story - evidence first, narrative second.</li>
+          <li><strong>State judgment as judgment.</strong> Remember session 4's honest wobble: k=4 at 0.66 was genuinely defensible. Say so. "The data supports four-or-five; we chose five because the fresh arrivals separate cleanly and marketing wants the welcome flow" is stronger, not weaker, for admitting the call.</li>
+          <li><strong>Name the review date.</strong> Segments drift. A sheet without a review date is a snapshot posing as a truth; ours says quarterly, out loud, in the meeting.</li>
+        </ul>
+        <div class="callout example"><span class="ex-pill">Real world</span>Watch what happens to analysts who overclaim: the first time a stakeholder catches "the algorithm discovered five customer types" being quietly walked back, every future deck gets discounted. The analysts with ten-year reputations are the ones who said "we chose to slice five ways, and here is the evidence" from the start. Precision about certainty compounds like interest.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What goes in the appendix behind the sheet<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The sheet acts; the appendix audits. When someone technical asks "how do we know these are real," the appendix answers without a meeting: the silhouette-by-k curve with its peak at 5 (0.68) and the k=12 point at 0.34, the noise baseline (0.31) drawn as a line under everything, the scaling before/after pair (0.53 to 0.68), the PCA view (PC1+PC2 = 86%) with segments colored, and the segment profiles on features that were NOT clustered on. Five artifacts, one page each, zero narrative - the evidence stands or it does not. Building the appendix takes an hour when the pipeline is fresh and a week of archaeology when it is not; build it the same day you build the sheet.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: REAL DATA ============ -->
+  <section class="section" id="realdata">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers tomorrow</span>
+      <h2>What you would do differently on real data <span class="tag concept">4 min live</span></h2>
+    </div>
+    <p class="lede">The honesty rail comes due: <strong>no truth match exists out there.</strong> Every session said it; today it stops being a caveat and becomes your working condition. Here is what fills the hole.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The substitutes, and what real pipelines add<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>What replaces the truth match:</strong> the noise baseline (does your score clear same-shape random data by a real margin?), stability under resampling (do the groups keep forming?), and holdout profiling (do segments differ on features you did not cluster on?). Three imperfect checks, accumulated - session 9's whole checklist, now load-bearing.</p>
+        <p><strong>What real pipelines add:</strong> fresh data on a schedule (quarterly at minimum for retail), segment-migration alerts (when customers flow between segments faster than usual, something changed - in them or in your pipeline), and a data contract on the RFM inputs so the next unit change arrives as a diff to review instead of a silent cents-style ambush.</p>
+      </div>
+    </details>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Graduation map: four courses that continue from here">
+        <style>
+          .grW { font: 800 15px Inter, sans-serif; fill: #FFFFFF; }
+          .grV { font: 400 12px Inter, sans-serif; fill: #FFFFFF; }
+          .grT { font: 700 13px Inter, sans-serif; fill: #221A2E; }
+          .grX { font: 400 11.5px Inter, sans-serif; fill: #6B647D; }
+          .grN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <defs>
+          <marker id="grAh" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#CCC5D9"/>
+          </marker>
+        </defs>
+        <rect x="20" y="110" width="250" height="90" rx="14" fill="#581C87"/>
+        <text class="grW" x="40" y="142">🎓 You are here</text>
+        <text class="grV" x="40" y="166">describe, scale, cluster,</text>
+        <text class="grV" x="40" y="184">validate, name, defend</text>
+        <line x1="270" y1="140" x2="452" y2="49" stroke="#CCC5D9" stroke-width="2" marker-end="url(#grAh)"/>
+        <line x1="270" y1="150" x2="452" y2="119" stroke="#CCC5D9" stroke-width="2" marker-end="url(#grAh)"/>
+        <line x1="270" y1="160" x2="452" y2="189" stroke="#CCC5D9" stroke-width="2" marker-end="url(#grAh)"/>
+        <line x1="270" y1="170" x2="452" y2="259" stroke="#CCC5D9" stroke-width="2" marker-end="url(#grAh)"/>
+        <rect x="456" y="20" width="380" height="58" rx="10" fill="#F5EDFC"/>
+        <text class="grT" x="472" y="44">learn-feature-engineering-with-phoebe</text>
+        <text class="grX" x="472" y="64">where RFM came from - build better inputs</text>
+        <rect x="456" y="90" width="380" height="58" rx="10" fill="#F5EDFC"/>
+        <text class="grT" x="472" y="114">learn-anomaly-detection-with-phoebe</text>
+        <text class="grX" x="472" y="134">the OTHER find-the-weird-stuff toolkit (Lumen)</text>
+        <rect x="456" y="160" width="380" height="58" rx="10" fill="#F5EDFC"/>
+        <text class="grT" x="472" y="184">learn-recommendation-with-phoebe</text>
+        <text class="grX" x="472" y="204">association rules grow into recommenders (Kirana)</text>
+        <rect x="456" y="230" width="380" height="58" rx="10" fill="#F5EDFC"/>
+        <text class="grT" x="472" y="254">learn-model-evaluation-with-phoebe</text>
+        <text class="grX" x="472" y="274">the judging mindset, supervised side</text>
+        <rect x="20" y="312" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="grN" x="44" y="324">Pick one within a week - the pipeline you just learned stays fluent only if you keep running it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the graduation map: four courses that continue from here</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The segmentation that stays alive<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A segmentation shipped once and never re-run is a photograph of customers who have since moved. The minimum viable maintenance plan fits in one table:</p>
+        <table class="clean">
+          <tr><th>Ritual</th><th>Cadence</th><th>What it catches</th></tr>
+          <tr><td>Reprofile the segments</td><td>Quarterly</td><td>Drift in the signatures - the "steady middle" quietly becoming lighter baskets</td></tr>
+          <tr><td>Segment-migration alert</td><td>Monthly (automated)</td><td>Unusual flow between segments - a real behavior change, or a pipeline change upstream</td></tr>
+          <tr><td>Data contract check on RFM inputs</td><td>On every schema change</td><td>The next cents-style ambush arriving as a reviewable diff instead of a silent break</td></tr>
+          <tr><td>Full re-validation (k sweep + baseline)</td><td>Yearly, or after big product shifts</td><td>The structure itself changing - five segments becoming four, or six</td></tr>
+        </table>
+        <p>Notice the asymmetry: shipping took ten sessions, staying honest takes a few hours a quarter. The review date on the segment sheet is the contract that makes those hours happen.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Choosing your next course<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Four honest routes onward. If your clusterings keep disappointing you, the inputs are usually the problem: <strong>learn-feature-engineering</strong>. If the pile's exceptions interest you more than its groups: <strong>learn-anomaly-detection</strong>, the second pillar of the unsupervised world. If session 8's basket rules were your favorite twenty minutes: <strong>learn-recommendation</strong> is where rules grow into real recommenders. And if you want the judging mindset with labels back in play: <strong>learn-model-evaluation</strong>. Any of the four will keep this course's muscles warm.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Everyone graduates</span>
+      <h2>The four-press ladder 🥭 <span class="tag demo">★ 25 min · the whole course in four presses</span></h2>
+    </div>
+    <p class="lede">The lab below is the entire project on one screen: four buttons, each one a session you lived through, each press narrated by you. Run it the way you would run it for Mango Lane's marketing lead sitting next to you - out loud, evidence first.</p>
+
+    <div id="cluster-live" data-mode="capstone"></div>
+
+    <div class="steps">
+      <div class="step"><p><strong>Press "1 · Raw 5-means."</strong> Silhouette 0.53, truth match 70%, and the segments are wallet bands - the cents column running the show. This is the floor, and a reminder of where every unscaled project silently lives without knowing it.</p></div>
+      <div class="step"><p><strong>Press "2 · Scale first."</strong> 0.68 / 100% - the single biggest jump in the whole project from one preprocessing line. Say WHY in one sentence from session 2: distance treats every unit as equally important, so the biggest raw numbers win unless you scale them level.</p></div>
+      <div class="step"><p><strong>Press "3 · Validate k."</strong> The sweep confirms k=5 - the peak the data holds, not the number someone wanted. Session 4's discipline in one press: the k=12 vanity option is still there, still scoring 0.34, still refused.</p></div>
+      <div class="step"><p><strong>Press "4 · Name + action."</strong> The five named segments with campaigns appear - VIP perks, steady upsell, gifter occasion nudges, fresh-arrival welcome flow, lapsed win-back. THIS table is the deliverable. Everything else was the road.</p></div>
+      <div class="step"><p><strong>Retrieve your session-1 hand-sort</strong> of the twelve customers and grade yourself against the final segmentation. Where did your eye beat the algorithm? Probably the lapsed - recency is visible to a human at a glance. Where did it fool you? Probably gifters vs steady - the cents column made big baskets look like loyalty. Both findings are the course working.</p></div>
+      <div class="step"><p><strong>Write the three-sentence executive summary:</strong> evidence (silhouette peaks at five and clears the noise baseline), decision (five segments, named, each with an owner), ask (fund the five campaigns, review quarterly). If those three sentences come out clean, you are done - with the session and with the course.</p></div>
+    </div>
+    <div class="callout tip">
+      <strong>✦ The compressed version IS the skill</strong>
+      Ten sessions compress into four presses and three sentences with nothing important lost - because everything important was judgment, and judgment travels light. That is what you are taking with you.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">The graduation list</span>
+      <h2>Homework 📝 <span class="tag exercise">◐ this month</span></h2>
+    </div>
+    <ul>
+      <li><strong>Run the full ladder once more from memory,</strong> explaining each press aloud as if a stakeholder were beside you. Fluency without notes is the graduation bar - if a press needs its session re-read, re-read it.</li>
+      <li><strong>Take the segment sheet format to a real dataset at work this month:</strong> segment / size / signature / campaign / owner / review date. Even on a dataset where you conclude NOT to cluster (session 9's memo), the format forces the honest questions.</li>
+      <li><strong>Pick your next course from the graduation map</strong> - feature engineering, anomaly detection, recommendation, or model evaluation - and start it within a week, while the pipeline is still warm in your hands.</li>
+    </ul>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · The honest segmentation pipeline, in order, is...</p>
+      <button class="qopt" type="button">A · cluster → describe → name → scale → validate</button>
+      <button class="qopt" type="button">B · describe → scale → cluster → name and act → validate</button>
+      <button class="qopt" type="button">C · describe → scale → cluster → validate → name and act</button>
+      <p class="qwhy">Validation comes BEFORE naming - the sequence is the discipline. Naming feels productive and is dangerously fun; the human brain will happily write a persona for a cloud of noise, which is why the checking happens first.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">2 · Which single step moved the numbers most in the Mango Lane project, and why?</p>
+      <button class="qopt" type="button">A · switching to best-of-5 restarts - it escaped the local optima</button>
+      <button class="qopt" type="button">B · scaling - the cents column dominated every distance until z-scaling leveled the features (0.53/70% to 0.68/100%)</button>
+      <button class="qopt" type="button">C · raising k to 12 - more segments captured more structure</button>
+      <p class="qwhy">One preprocessing line beat every algorithmic refinement in the course. Distance treats units as importance, so the biggest raw numbers (cents, in the tens of thousands) owned the analysis until scaling took the megaphone away. k=12 went the other way: 0.34.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · On real data there is no truth-match score. What replaces it?</p>
+      <button class="qopt" type="button">A · a noise baseline, stability under resampling, and profiling on held-out features - accumulated, none alone</button>
+      <button class="qopt" type="button">B · nothing - on real data you simply trust the silhouette</button>
+      <button class="qopt" type="button">C · a manager signing off on the personas</button>
+      <p class="qwhy">The honesty rail cashed out: truth match existed only because the lab data was simulated. The working substitutes are session 9's checklist - imperfect checks that accumulate into earned confidence. A silhouette alone is exactly what noise at 0.31 teaches you not to trust uncalibrated.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ SOURCES COVERED ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Coverage, honestly</span>
+      <h2>What this course covered from the official universe</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Full-course recap</span><span class="note">all ten sessions - you can now describe, scale, cluster, validate, name, and defend an unsupervised segmentation end to end</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Andrew Ng ML Specialization course 3, week 1</span><span class="note">k-means intuition, objective, initialization, and choosing k - completed across sessions 1, 3, and 4</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">scikit-learn clustering (2.3) + decomposition (2.5) guides</span><span class="note">the working core: k-means, DBSCAN, GMM, hierarchical, silhouette evaluation, PCA - taught to the 80% bar</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Certificates and graded labs</span><span class="note">stay with the official providers - this course taught the working core with a live in-browser lab instead</span></div>
+    </div>
+    <p>Full source map, verified facts, and the simulator canon live in the repo's <em>materials/official-course-map.md</em>.</p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>The whole course in 8 cells</h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The pipeline</b><span>Describe → scale → cluster → validate → name and act. Validation before naming, always.</span></div>
+      <div class="cheat-item"><b>The portrait (u1)</b><span>RFM: recency, frequency, monetary. Feature choice IS the analysis - and mind the units.</span></div>
+      <div class="cheat-item"><b>The scaling jump (u2)</b><span>Raw cents: 0.53 sil / 70% truth. z-scaled: 0.68 / 100%. The biggest single move in the project.</span></div>
+      <div class="cheat-item"><b>The algorithm (u3, u5)</b><span>k-means best-of-5 restarts (inertia 92); DBSCAN for shapes and noise, GMM for soft borders, hierarchical for the tree.</span></div>
+      <div class="cheat-item"><b>The k call (u4)</b><span>Silhouette peaks at k=5 (0.68); k=12 vanity crashes to 0.34. Peak + actionability, not decimals - k=4 was defensible, say so.</span></div>
+      <div class="cheat-item"><b>The view (u6)</b><span>PCA: PC1+PC2 carry 86% of variance - the honest 2D picture. t-SNE/UMAP for looking, never for measuring.</span></div>
+      <div class="cheat-item"><b>The skepticism (u9)</b><span>Noise scores 0.31 and looks like success. Baseline, stability, holdout profile - or do not present. Sometimes: do not cluster.</span></div>
+      <div class="cheat-item"><b>The deliverable (u7, u8, u10)</b><span>Five named segments with owners, campaigns (perks / upsell / occasion / welcome / win-back), cross-sell rules, and a review date.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 10 of 10 · learn-unsupervised-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="u9-when-clustering-lies.html">← Prev: When clustering lies</a> &nbsp;·&nbsp; <a href="../index.html">Back to all sessions →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+<script src="../assets/cluster-live.js?v=1"></script>
+</body>
+</html>

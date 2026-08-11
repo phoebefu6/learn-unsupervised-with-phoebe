@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 8 · What sells together: association rules and honest lift - learn unsupervised with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-unsupervised-with-phoebe</a> / Session 8 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Unsupervised with Phoebe · Session 8 of 10</div>
+    <h1>What <span class="accent">sells together</span></h1>
+    <p class="sub">Seven sessions asked "which customers are similar?" Today the same unlabeled pile answers a different question: "what goes together in a basket?" Association rules are the third unsupervised job from session 1 - co-occurrence - and they run on three numbers: support, confidence, and lift. Two of the three can flatter a worthless rule; one of them is honest. The lab mines 500 real Mango Lane baskets live in your browser, and by the end you will read a rule table the way a merchandiser should: lift first, support as the sanity check, confidence with suspicion.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Building</span>
+      <span class="chip audience">Builder track</span>
+      <span class="chip audience">Live basket mining</span>
+      <span class="chip time">45 min + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Concepts</span>
+      <span class="a3" style="flex:4">20-40 · Mine the baskets</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why this session exists</h2>
+    </div>
+    <p class="lede">Session 1 said unsupervised learning does three things to an unlabeled pile: group similar things, compress features, and <strong>find what goes together</strong>. The first two are done. The third works on a different unit - not the customer but the basket - and it powers the most visible retail analytics there is: "customers who bought this also bought...". The field's founding legend is the beer-and-diapers story: a supermarket supposedly discovered that young fathers buying diapers also grabbed beer, and moved the shelves accordingly. The story is very possibly apocryphal - nobody has ever produced the original analysis - but it survives because it captures the promise perfectly: co-occurrence patterns, mined from receipts nobody labeled, that a human merchandiser would never have guessed. Today you learn the three numbers that separate the real patterns from the folklore.</p>
+    <div class="legend">
+      <span class="pill solid">Live - covered in session</span>
+      <span class="pill light">Self-study - read after</span>
+      <span class="pill peach">✦ Lab moment</span>
+      <span class="pill inkpill">🥭 The Mango Lane case</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The anatomy of a rule (if A, then also C), fluency in its three numbers - support, confidence, lift - including the hand arithmetic, the popular-item trap that makes confidence lie, apriori decoded in one paragraph, and a live-mined rule table from 500 Mango Lane baskets that you can read like a practitioner.
+    </div>
+    <div class="callout tip">
+      <strong>The honesty rail (used all course)</strong>
+      The lab's baskets are simulated with planted style pairs, which is why we can tell you which rules SHOULD surface. The mining itself is real - real counting over real baskets in your browser, no script. On real receipts you get the same table with no answer key; the three numbers and your skepticism are the whole toolkit.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE THREE NUMBERS ============ -->
+  <section class="section" id="threenumbers">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers support, confidence, lift</span>
+      <h2>The three numbers of a rule <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">A rule has the shape <strong>"if the basket has A, then it also has C"</strong> - antecedent, consequent. Every mined rule carries three numbers, and each answers a different question: <strong>support</strong> asks how common the pair is, <strong>confidence</strong> asks how reliable the if-then is, and <strong>lift</strong> asks whether the pairing beats plain chance. You need all three because each one alone can be gamed.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Anatomy of an association rule and its three numbers">
+        <style>
+          .arH { font: 800 15px Inter, sans-serif; fill: #FFFFFF; }
+          .arW { font: 400 12.5px Inter, sans-serif; fill: #FFFFFF; }
+          .arB { font: 700 13px Inter, sans-serif; fill: #581C87; }
+          .arX { font: 400 12px Inter, sans-serif; fill: #6B647D; }
+          .arT { font: 700 13px Inter, sans-serif; fill: #221A2E; }
+          .arN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+          .arA { stroke: #CCC5D9; stroke-width: 2.5; fill: none; marker-end: url(#arAh); }
+        </style>
+        <defs>
+          <marker id="arAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#CCC5D9" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="40" y="36" width="260" height="90" rx="14" fill="#581C87"/>
+        <text class="arH" x="60" y="70">🧺 IF basket has A</text>
+        <text class="arW" x="60" y="98">the antecedent · white sneakers</text>
+        <line class="arA" x1="310" y1="81" x2="570" y2="81"/>
+        <text class="arT" x="386" y="66">then also...</text>
+        <rect x="580" y="36" width="260" height="90" rx="14" fill="#7E22CE"/>
+        <text class="arH" x="600" y="70">🧺 ...C as well</text>
+        <text class="arW" x="600" y="98">the consequent · crew socks</text>
+        <rect x="40" y="160" width="260" height="112" rx="14" fill="#F5EDFC"/>
+        <text class="arB" x="55" y="186">SUPPORT - how common</text>
+        <text class="arX" x="55" y="210">baskets with A and C</text>
+        <text class="arX" x="55" y="228">divided by ALL baskets</text>
+        <text class="arX" x="55" y="254">rare rule = thin evidence</text>
+        <rect x="310" y="160" width="260" height="112" rx="14" fill="#F5EDFC"/>
+        <text class="arB" x="325" y="186">CONFIDENCE - how reliable</text>
+        <text class="arX" x="325" y="210">baskets with A and C</text>
+        <text class="arX" x="325" y="228">divided by baskets with A</text>
+        <text class="arX" x="325" y="254">directional: A→C is not C→A</text>
+        <rect x="580" y="160" width="260" height="112" rx="14" fill="#F5EDFC"/>
+        <text class="arB" x="595" y="186">LIFT - versus chance</text>
+        <text class="arX" x="595" y="210">confidence divided by</text>
+        <text class="arX" x="595" y="228">C's base rate in all baskets</text>
+        <text class="arX" x="595" y="254">1 = independent · above 1 = pull</text>
+        <rect x="20" y="296" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="arN" x="44" y="308">Support says how often, confidence says how reliably, lift says how surprising. Read all three.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - rule anatomy: antecedent, consequent, and what each number divides by</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The arithmetic, worked by hand<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Toy shop, 100 baskets. Item A appears in 20 baskets, item C appears in 25, and 10 baskets contain both. The rule A → C:</p>
+        <table class="clean">
+          <tr><th>Number</th><th>Computation</th><th>Value</th><th>What it just told you</th></tr>
+          <tr><td>Support</td><td>10 both ÷ 100 baskets</td><td>10%</td><td>one basket in ten carries the pair - common enough to matter</td></tr>
+          <tr><td>Confidence</td><td>10 both ÷ 20 with A</td><td>50%</td><td>half of A's buyers also take C - the if-then is fairly reliable</td></tr>
+          <tr><td>C's base rate</td><td>25 with C ÷ 100</td><td>25%</td><td>the chance ANY basket has C, ignoring A entirely</td></tr>
+          <tr><td>Lift</td><td>50% ÷ 25%</td><td>2.0</td><td>A's buyers take C at twice the base rate - a real pull, not chance</td></tr>
+        </table>
+        <p>Two things to lock in. <strong>Confidence is directional:</strong> conf(A→C) = sup(A∪C) / sup(A), so flipping the rule changes the denominator - C→A here scores 10 ÷ 25 = 40%, a different number for a different claim. <strong>Lift is symmetric and centered on 1:</strong> lift 1 means A and C are independent, above 1 they attract, below 1 they actively avoid each other - a rule with lift 0.4 is telling you buyers of A do NOT buy C, which is merchandising information too.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>The mlxtend library - the standard Python toolkit for this - computes exactly these columns from exactly these ratios, plus a few research extras (leverage, conviction). When practitioners say "we mined the baskets", they mean this table. The math you just did by hand on 100 baskets is the entire method; the library's contribution is doing it fast over millions.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Directionality in practice: the arrow picks the inbox<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Because confidence divides by the antecedent, the two directions of one pairing are two different campaigns. In the toy above, A→C scores 50% confidence while C→A scores 40% - same pair, same lift, different reach. The direction you ship is the direction whose antecedent you can act on: a cross-sell email goes to the people who already bought the IF side, so A→C at 50% means half the A-buyers you email are already inclined toward C. Flip the arrow and you are emailing C-buyers with a weaker claim. Lift tells you the pair is real; the confidence pair tells you which side of it to stand on. Check both directions before drafting anything - it is one extra division.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the basket, not the customer<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Notice the unit change: sessions 1-7 described customers (one row each, RFM); today's rows are baskets - one receipt, a set of items, no identity required. That is a feature, not a limitation: basket mining works on anonymous transactions, needs no customer history, and answers merchandising questions (placement, bundles) that segmentation cannot. The two views compose: a win-back email to lapsed big spenders (session 7) can carry the cross-sell the basket rules suggest (today). Same pile of unlabeled data, two lenses, one campaign.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: HONEST LIFT ============ -->
+  <section class="section" id="honestlift">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the popular-item trap</span>
+      <h2>Why lift is the honest column <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Here is the trap that catches every first-time basket miner: <strong>a rule can have high confidence purely because the consequent is popular with everyone.</strong> If 70% of all baskets contain gift wrap, then "anything → gift wrap" scores 70% confidence - beanies, belts, returns of socks, all of them "predict" gift wrap at 70%. The if-part contributed nothing. Confidence flatters popular items; lift divides that popularity back out. That is the whole reason lift exists.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="High confidence with lift near 1 versus real lift compared">
+        <style>
+          .lfH { font: 800 14px Inter, sans-serif; fill: #FFFFFF; }
+          .lfT { font: 700 13px Inter, sans-serif; fill: #221A2E; }
+          .lfX { font: 400 12px Inter, sans-serif; fill: #6B647D; }
+          .lfC { font: 700 12.5px Inter, sans-serif; fill: #3F2A08; }
+          .lfG { font: 700 12.5px Inter, sans-serif; fill: #581C87; }
+          .lfN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+          .lfA { stroke: #CCC5D9; stroke-width: 2.5; fill: none; marker-end: url(#lfAh); }
+        </style>
+        <defs>
+          <marker id="lfAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#CCC5D9" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="20" y="30" width="380" height="216" rx="14" fill="#FBF0DE"/>
+        <rect x="20" y="30" width="380" height="40" rx="14" fill="#D97706"/>
+        <text class="lfH" x="38" y="55">The popular-item trap</text>
+        <text class="lfT" x="38" y="98">any item → gift wrap</text>
+        <text class="lfX" x="38" y="124">confidence 70% - looks impressive</text>
+        <text class="lfX" x="38" y="144">but 70% of ALL baskets have gift wrap</text>
+        <text class="lfT" x="38" y="172">lift = 70% ÷ 70% = 1.0</text>
+        <text class="lfC" x="38" y="204">A told you nothing about C - put gift</text>
+        <text class="lfC" x="38" y="222">wrap next to anything, same result</text>
+        <rect x="480" y="30" width="380" height="216" rx="14" fill="#F5EDFC"/>
+        <rect x="480" y="30" width="380" height="40" rx="14" fill="#7E22CE"/>
+        <text class="lfH" x="498" y="55">A real pairing</text>
+        <text class="lfT" x="498" y="98">white sneakers → crew socks</text>
+        <text class="lfX" x="498" y="124">confidence 72% - almost the same</text>
+        <text class="lfX" x="498" y="144">but socks sit in only ~24% of baskets</text>
+        <text class="lfT" x="498" y="172">lift = 72% ÷ 24% = 3.0x</text>
+        <text class="lfG" x="498" y="204">sneaker buyers take socks at three</text>
+        <text class="lfG" x="498" y="222">times chance - a pull worth money</text>
+        <line class="lfA" x1="400" y1="284" x2="220" y2="180"/>
+        <line class="lfA" x1="480" y1="284" x2="660" y2="180"/>
+        <text class="lfT" x="352" y="292">lift is the honest column</text>
+        <rect x="20" y="312" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="lfN" x="44" y="324">Nearly identical confidence, opposite meaning. Only the lift line can tell these two rules apart.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two rules with almost the same confidence; lift separates the trap from the treasure</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The reading order: lift first, support as sanity check<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The practitioner's reading order for a rule table:</p>
+        <div class="steps">
+          <div class="step"><p><strong>Sort by lift</strong> - it is the column that measures surprise, and surprise is where the unmined money is. A merchandiser already knows the popular items.</p></div>
+          <div class="step"><p><strong>Sanity-check support before believing anything.</strong> A lift of 20 computed on 3 baskets is noise wearing a crown - tiny denominators produce spectacular ratios. If the pair barely occurs, the rule is an anecdote, not a pattern. Chase lift, but only where support says the evidence is thick enough to stand on.</p></div>
+          <div class="step"><p><strong>Then read confidence for operations:</strong> once lift says the pull is real and support says it is common, confidence tells you what fraction of A-buyers your cross-sell will actually reach.</p></div>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Apriori, decoded in one paragraph<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>How does a machine find these rules without checking every possible item combination (which explodes combinatorially)? <strong>Apriori's one clever idea: count frequent itemsets first, and prune the rare ones early</strong> - because if {sneakers} alone is rare, then {sneakers, socks} cannot possibly be frequent, so entire branches of the search die without being counted. Count singles, keep the frequent; count pairs built only from frequent singles; keep going until nothing survives; then derive the if-then rules from the surviving sets. Clever counting, not magic. Its faster sibling <strong>fpgrowth</strong> reaches the same rules through a compressed tree structure - same output, better engineering - and both ship in mlxtend.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>"Frequently bought together" panels and supermarket endcap pairings are the public face of this method - basket mining is one of the oldest deployed forms of unsupervised learning in retail, decades older than the deep learning wave. The reason it survives is the reason this course teaches it: three interpretable numbers a category manager can interrogate beat a black box they cannot.</div>
+      </div>
+    </details>
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The knobs: minimum support and minimum confidence<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Real mining runs need thresholds, or the rule table drowns you. The standard workflow sets them in this order:</p>
+        <table class="clean">
+          <tr><th>Knob</th><th>What it does</th><th>How to think about it</th></tr>
+          <tr><td>min support</td><td>drops itemsets that occur too rarely to trust</td><td>the evidence floor - set it first; it is also what makes apriori's pruning bite</td></tr>
+          <tr><td>min confidence</td><td>drops if-thens that are too unreliable to act on</td><td>the operations floor - below it, the cross-sell reaches too few A-buyers to bother</td></tr>
+          <tr><td>lift filter</td><td>drops rules that merely restate popularity</td><td>applied last, on the surviving table - the honesty pass from part 2</td></tr>
+        </table>
+        <p>Set the floors too high and real niche pairings vanish; too low and the table fills with three-basket anecdotes. Practitioners iterate: mine, eyeball, adjust, re-mine. The knobs are judgment calls, which is exactly why the three-number fluency from part 1 matters more than the library call.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: RULES TO MONEY ============ -->
+  <section class="section" id="rulestomoney">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers actioning rules</span>
+      <h2>From rules to money 🥭 <span class="tag concept">4 min live</span></h2>
+    </div>
+    <p class="lede">A validated rule feeds three classic actions. <strong>Cross-sell messaging:</strong> "bought sneakers? here are socks" - the email writes itself from the rule's two sides. <strong>Placement:</strong> put the pair together, on the shelf or on the product page. <strong>Bundles:</strong> price the pair as a set and let the lift do the persuading. For Mango Lane, the win-back email from session 7's segment sheet just got smarter: it can now feature what lapsed spenders' baskets historically paired.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The honest boundary: co-occurrence is not causation<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A rule describes what already happens in baskets; it does not explain why, and it does not promise that pushing A will drag C along. Sneakers and socks may pair because one causes the other, because both serve one outfit, or because both sit in a summer sale. The rule cannot tell you which - and does not need to, IF you treat it correctly: <strong>putting socks next to sneakers is a test of the rule, and the rule alone proves nothing.</strong> Ship the placement, measure attach rate against a control, and let the experiment - not the lift column - make the causal claim. A rule licenses a cheap test; it never licenses a causal sentence in a slide deck.</p>
+        <p>And the pointer this course owes you: rules are the shallow end of "people who bought X also...". Full recommender systems - collaborative filtering, matrix factorization, the personalized feed - live in <strong>learn-recommendation-with-phoebe</strong> on the Kirana case. This session stops at rules, on purpose: they are the interpretable, arguable, merchandiser-friendly member of the family.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Which action for which rule<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A rough matching, worth arguing with: <strong>cross-sell messaging</strong> wants high confidence on top of real lift, because every email costs attention and you want most recipients already inclined. <strong>Placement</strong> tolerates lower confidence - putting things near each other is nearly free, so any healthy-support rule with lift comfortably above 1 earns a shelf test. <strong>Bundles</strong> demand the most: real lift, thick support, AND a margin check the rule table knows nothing about, because a discount on a pair people already buy together is money handed back. In all three cases the rule nominates the candidate and the experiment confirms it - the table is a shortlist generator, never a decision.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Rules have a shelf life<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Session 7 said segments drift; rules drift harder, because baskets follow seasons, promotions, and stock. A pairing mined during a gifting season can evaporate by spring; a rule created by last month's bundle promotion is your own marketing echoing back at you, not customer preference. Two working habits follow. First, <strong>date every mined table</strong> and re-mine on a schedule, exactly like the segment sheet's review date. Second, before shipping any rule, ask what was happening in the shop during the mining window - a sale, a launch, a holiday - and whether the rule is the customers talking or the calendar. The arithmetic is timeless; the baskets are not.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO: MINE THE BASKETS ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Everyone mines</span>
+      <h2>Mine the baskets 🧺 <span class="tag demo">★ 20 min · live rule mining in your browser</span></h2>
+    </div>
+    <p class="lede">The lab below mines association rules from 500 Mango Lane baskets the moment the page loads - real counting over real simulated receipts, computed live, no pre-baked table. The planted style pairs are in there; so are the popularity traps. Read the table the way part 2 taught you.</p>
+
+    <div id="cluster-live" data-mode="basket"></div>
+
+    <div class="steps">
+      <div class="step"><p><strong>Know what you are looking at.</strong> The table was mined live from 500 baskets on page load - support, confidence, and lift counted for real in your browser, no script supplying answers. Reload the page and the counting runs again.</p></div>
+      <div class="step"><p><strong>Read the top rule: white sneakers → crew socks.</strong> Support 14%, confidence 72%, lift 3.0x. Say the full sentence: the pair sits in 14% of all baskets, 72% of sneaker baskets also carry socks, and that is 3x more than sock-buying chance alone would predict. Buyers pair them - three times more than chance.</p></div>
+      <div class="step"><p><strong>Find midi dress → leather belt (lift 2.9x).</strong> This is the second planted style pair, and it surfaced because the mining is real - nobody typed it into the page. The lab plants the pattern; the arithmetic finds it. That is the entire promise of the method, demonstrated.</p></div>
+      <div class="step"><p><strong>Read a lower-lift row and say WHY it ranks lower.</strong> Pick any rule with decent confidence but modest lift and explain it out loud using part 2's trap: the consequent's base rate is doing the work, so the antecedent adds little pull. If you can articulate that, you can read any rule table in the industry.</p></div>
+      <div class="step"><p><strong>Draft the cross-sell email the top rule writes for you.</strong> Subject line, one sentence, using both sides of the rule - something like "Your sneakers asked us for socks". Note how the rule hands you the WHAT (the pairing) while the segment sheet from session 7 hands you the WHO.</p></div>
+      <div class="step"><p><strong>Run the lift-versus-confidence argument.</strong> Find any rule where confidence looks strong but lift sits near 1, and explain it via the popular-consequent trap: everyone buys that item anyway, so the rule earns no shelf move and no email. One strong-confidence row rejected out loud is the session's exit exam.</p></div>
+    </div>
+    <div class="callout tip">
+      <strong>✦ The reading order, one more time</strong>
+      Lift finds the surprise, support certifies the evidence, confidence sizes the operation. Any rule you ship should pass all three reads - and even then, it ships as a test with a control group, never as a causal claim.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Before next session</span>
+      <h2>Homework 📝 <span class="tag exercise">◐ 20 minutes</span></h2>
+    </div>
+    <ul>
+      <li><strong>Spot a cross-sell in the wild:</strong> find one "frequently bought together" or paired-placement in a real shop (physical or online) and reverse-engineer its rule - what is A, what is C, and would you bet its lift is above 2 or barely above 1?</li>
+      <li><strong>Hand-compute one rule:</strong> invent a small basket table (or reuse the toy: 100 baskets, A in 20, C in 25, both in 10) and compute support, confidence both directions, and lift on paper. The arithmetic must live in your hands, not the library's.</li>
+      <li><strong>Write when you would NOT ship a high-lift rule:</strong> three sentences covering the three vetoes - support too thin (spectacular ratio, three baskets), seasonal artifact (mined in December, shipped in March), and causation confusion (the rule licensed a placement test, someone's deck claimed the socks drive sneaker sales).</li>
+    </ul>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · Support, confidence, and lift measure, in order...</p>
+      <button class="qopt" type="button">A · reliability, popularity, and profit margin of the rule</button>
+      <button class="qopt" type="button">B · how many items, how many baskets, and how many customers are involved</button>
+      <button class="qopt" type="button">C · how common the pair is in all baskets, how reliably A-baskets also contain C, and how much the pairing beats C's base rate</button>
+      <p class="qwhy">Support = both ÷ all baskets. Confidence = both ÷ baskets with A (directional - flipping the rule changes the denominator). Lift = confidence ÷ C's base rate, centered on 1. Three questions, three denominators.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · A rule shows 70% confidence but lift almost exactly 1. What did you just learn?</p>
+      <button class="qopt" type="button">A · the consequent is simply popular with everyone - A adds no pull, and the item would pair "well" with anything</button>
+      <button class="qopt" type="button">B · the rule is exceptionally strong and should anchor the next campaign</button>
+      <button class="qopt" type="button">C · the support must also be high</button>
+      <p class="qwhy">Lift 1 means confidence merely equals the consequent's base rate - independence. The 70% was the item's own popularity reflected back at you. This is the popular-item trap, and lift is the column built to catch it.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · A high-lift, healthy-support rule licenses you to...</p>
+      <button class="qopt" type="button">A · claim in the quarterly deck that A drives sales of C</button>
+      <button class="qopt" type="button">B · run a cheap test - place the pair together or send the cross-sell - and measure against a control; the rule alone proves nothing causal</button>
+      <button class="qopt" type="button">C · bundle the items permanently, since the math has spoken</button>
+      <p class="qwhy">Rules describe co-occurrence, not causation - the pair may share a season, an outfit, or a sale. Putting socks next to sneakers TESTS the rule; only the experiment's result can support a causal sentence.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ SOURCES COVERED ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Coverage, honestly</span>
+      <h2>What this session covered from the official universe</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">mlxtend association-rules documentation</span><span class="note">support, confidence (sup(A∪C)/sup(A), directional), and lift (1 = independent) taught to the working bar with hand arithmetic</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">apriori / fpgrowth (mlxtend frequent-patterns)</span><span class="note">the prune-the-rare counting idea decoded; fpgrowth named as the faster sibling with identical output</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">DataCamp "Unsupervised Learning in Python" ch4</span><span class="note">the NMF / recommender flavor of "what goes together" - pointed to learn-recommendation-with-phoebe rather than re-taught</span></div>
+    </div>
+    <p>Certificates, videos, and graded assessments stay with the official providers - this course teaches the working core with a live in-browser lab. Full source map in the repo's <em>materials/official-course-map.md</em>.</p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 8 cheat sheet</h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The rule shape</b><span>"If basket has A, then also C." Antecedent → consequent, mined per basket - no customer identity needed.</span></div>
+      <div class="cheat-item"><b>Support</b><span>Baskets with A and C ÷ ALL baskets. How common the pair is - and the sanity check on every spectacular ratio.</span></div>
+      <div class="cheat-item"><b>Confidence</b><span>Baskets with A and C ÷ baskets with A. Directional: A→C and C→A divide by different things and mean different claims.</span></div>
+      <div class="cheat-item"><b>Lift</b><span>Confidence ÷ C's base rate. 1 = independent, above 1 = attraction, below 1 = avoidance. The honest column.</span></div>
+      <div class="cheat-item"><b>The popular-item trap</b><span>High confidence + lift ~1 = the consequent is just popular with everyone. Put it next to anything, same "result".</span></div>
+      <div class="cheat-item"><b>Reading order</b><span>Sort by lift, sanity-check support (lift 20 on 3 baskets is noise), read confidence last for reach.</span></div>
+      <div class="cheat-item"><b>Apriori / fpgrowth</b><span>Count frequent itemsets, prune the rare early, derive rules from survivors. Clever counting, not magic; fpgrowth = faster sibling.</span></div>
+      <div class="cheat-item"><b>Rules vs causation</b><span>Lab canon: sneakers→socks sup 14%, conf 72%, lift 3.0x. It licenses a placement TEST - never a causal claim.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 8 of 10 · learn-unsupervised-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="u7-naming-and-shipping-segments.html">← Prev: Naming and shipping segments</a> &nbsp;·&nbsp; <a href="u9-when-clustering-lies.html">Next: When clustering lies →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+<script src="../assets/cluster-live.js?v=1"></script>
+</body>
+</html>

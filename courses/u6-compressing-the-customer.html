@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 6 · Compressing the customer: PCA and the visualization liars - learn unsupervised with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-unsupervised-with-phoebe</a> / Session 6 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Unsupervised with Phoebe · Session 6 of 10</div>
+    <h1>Compressing <span class="accent">the customer</span></h1>
+    <p class="sub">You have been staring at PC1/PC2 scatter plots since session 3 without ever asking what those axes ARE. Today we open the machine that made them: PCA, the honest workhorse of dimensionality reduction - what it keeps, what it throws away, and the one preprocessing mistake that hands the whole picture to the cents column. Then the two glamorous cousins, t-SNE and UMAP: beautiful, useful, and famous for making people conclude things their plots cannot support.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Building</span>
+      <span class="chip audience">Builder track</span>
+      <span class="chip audience">Real PCA in the lab</span>
+      <span class="chip time">45 min + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Concepts</span>
+      <span class="a3" style="flex:4">20-40 · The projection lab</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why this session exists</h2>
+    </div>
+    <p class="lede">Every clustering scatter in this course has quietly used a trick: our customers live in three dimensions (R, F, M), and your screen has two. Something has been deciding which two directions you get to see - and that something is PCA, running for real in the lab since session 3. Trusting a tool you have not inspected is exactly the habit this course exists to break. Today: the machine that made your axes, when compression helps beyond plotting, and the two prettier cousins that make bigger pictures and bigger lies.</p>
+    <div class="legend">
+      <span class="pill solid">Live - covered in session</span>
+      <span class="pill light">Self-study - read after</span>
+      <span class="pill peach">✦ Lab moment</span>
+      <span class="pill inkpill">🥭 The Mango Lane case</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      PCA as "the best flat shadow" (and the variance math behind that phrase), the numbers for our own pile (PC1 50%, PC2 37%, PC3 14% - two axes carry 86% of the story), the scale-first caution that echoes session 2, and a working rule for t-SNE/UMAP that will survive contact with any conference poster.
+    </div>
+    <div class="callout tip">
+      <strong>The honesty rail (used all course)</strong>
+      The lab's PCA is computed for real in your browser on the scaled 300-customer sample - real components, real variance percentages. The colors in the scatter are the PLANTED truth, which only exists because the data is simulated; a real project sees the same dots in one anonymous color.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE BEST FLAT SHADOW ============ -->
+  <section class="section" id="shadow">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers PCA itself</span>
+      <h2>PCA: the best flat shadow <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">Hold a 3D object over a table and it casts a 2D shadow - and DIFFERENT shadows depending on how you turn it. Some shadows are informative (a mug in profile: handle visible), some are useless (the mug from directly above: a circle). <strong>PCA finds the turning that casts the most informative flat shadow - the projection that preserves the most spread (variance) in the data.</strong> Spread is where the differences between customers live; a projection that keeps spread keeps distinctions.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PCA keeps the high-variance projection axis and discards the low-variance one; variance bars 50, 37, 14">
+        <style>
+          .pcH { font: 800 15px Inter, sans-serif; fill: #581C87; }
+          .pcT { font: 700 12.5px Inter, sans-serif; fill: #221A2E; }
+          .pcX { font: 400 12px Inter, sans-serif; fill: #6B647D; }
+          .pcB { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .pcN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <defs>
+          <marker id="pcAh" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 z" fill="#7E22CE"/>
+          </marker>
+        </defs>
+        <rect x="20" y="20" width="520" height="264" rx="14" fill="#F5EDFC"/>
+        <text class="pcH" x="40" y="48">The pile, with two candidate axes</text>
+        <circle cx="110" cy="232" r="5" fill="#A855F7"/><circle cx="140" cy="210" r="5" fill="#D8B4FE"/>
+        <circle cx="162" cy="224" r="5" fill="#A855F7"/><circle cx="185" cy="196" r="5" fill="#A855F7"/>
+        <circle cx="210" cy="205" r="5" fill="#D8B4FE"/><circle cx="232" cy="176" r="5" fill="#A855F7"/>
+        <circle cx="255" cy="188" r="5" fill="#D8B4FE"/><circle cx="278" cy="160" r="5" fill="#A855F7"/>
+        <circle cx="300" cy="170" r="5" fill="#A855F7"/><circle cx="322" cy="142" r="5" fill="#D8B4FE"/>
+        <circle cx="348" cy="152" r="5" fill="#A855F7"/><circle cx="370" cy="126" r="5" fill="#A855F7"/>
+        <circle cx="395" cy="134" r="5" fill="#D8B4FE"/><circle cx="418" cy="110" r="5" fill="#A855F7"/>
+        <circle cx="442" cy="118" r="5" fill="#A855F7"/><circle cx="465" cy="95" r="5" fill="#D8B4FE"/>
+        <line x1="75" y1="252" x2="500" y2="80" stroke="#7E22CE" stroke-width="3" marker-end="url(#pcAh)"/>
+        <text class="pcT" x="330" y="228">PC1 - most spread (kept)</text>
+        <line x1="255" y1="110" x2="320" y2="250" stroke="#CCC5D9" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#pcAh)"/>
+        <text class="pcX" x="128" y="100">PC2 - less spread</text>
+        <text class="pcX" x="40" y="272">Points barely spread along PC2 - dropping it loses little.</text>
+        <rect x="560" y="20" width="300" height="264" rx="14" fill="#FBF0DE"/>
+        <text class="pcH" x="580" y="48">Variance explained (our pile)</text>
+        <rect x="580" y="70" width="200" height="34" rx="8" fill="#581C87"/>
+        <text class="pcB" x="592" y="92">PC1 · 50%</text>
+        <rect x="580" y="116" width="148" height="34" rx="8" fill="#7E22CE"/>
+        <text class="pcB" x="592" y="138">PC2 · 37%</text>
+        <rect x="580" y="162" width="56" height="34" rx="8" fill="#A855F7"/>
+        <text class="pcB" x="588" y="184">14%</text>
+        <text class="pcT" x="648" y="184">PC3 - dropped</text>
+        <text class="pcT" x="580" y="230">PC1 + PC2 = 86% of the story</text>
+        <text class="pcX" x="580" y="250">kept on two axes; 14% is the</text>
+        <text class="pcX" x="580" y="266">price of the flat picture.</text>
+        <rect x="20" y="298" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="pcN" x="44" y="310">PCA keeps the shadow with the most spread. The discarded direction is the loss you agreed to.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two candidate axes, one kept: variance decides</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Components, in plain words<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>PCA hands back new axes called <strong>principal components</strong>, with three properties worth saying plainly:</p>
+        <ul>
+          <li><strong>Each component is a DIRECTION through the original features</strong> - a weighted recipe: so much frequency, so much monetary, minus so much recency. Those recipe weights are the <strong>loadings</strong>, and reading them tells you what the axis means in business terms.</li>
+          <li><strong>Components are orthogonal</strong> - each new axis is at right angles to all previous ones, so no component repeats information another already captured.</li>
+          <li><strong>They arrive ordered by variance explained</strong> - PC1 carries the most spread, PC2 the most of what remains, and so on. Compression is just "keep the first few, drop the rest."</li>
+        </ul>
+        <p>On our pile, read the PC1 loadings and a story appears: frequency and monetary point one way, recency points the other. PC1 is roughly an <strong>"engagement/value" direction</strong> - VIP regulars at one end, lapsed and one-time customers at the other. The axis you have been squinting at since session 3 had a meaning all along.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>Loadings are where PCA earns its keep in meetings. "PC1 = 50% of variance" impresses nobody; "the single strongest pattern in our customer base is an engagement-value axis, and here is the recipe" starts a strategy conversation. Analysts who skip the loadings ship scatter plots; analysts who read them ship narratives.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The caution: PCA centers, but does NOT scale<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>PCA chases variance - so whichever column has the biggest raw variance owns PC1. Sound familiar? It should: this is session 2's cents disaster wearing a different hat. <strong>scikit-learn's PCA automatically centers the data (subtracts each column's mean) but does NOT scale it.</strong> Centering is free; scaling is YOUR job, before fit.</p>
+        <p>Skip it on our pile and the monetary column - thousands of cents against tens of days and orders - dwarfs everything. PC1 becomes "basically the cents column", the variance table declares near-total victory for one component, and the beautiful 2D picture is a picture of a unit choice. Scale first (z-scores, session 2), and the three features compete fairly for the components.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>This is the most common PCA bug in the wild precisely because nothing errors: sklearn fits happily, variance percentages come back crisp, the plot renders. The tell is a suspiciously dominant PC1 whose loadings point almost entirely at your biggest-unit column. When you see a colleague's PCA where one component "explains" nearly everything, check the units before you applaud.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What PCA never sees<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Worth saying once, clearly: PCA is fully unsupervised. It never sees cluster labels, planted truth, or business meaning - it sees a cloud of scaled numbers and chases spread. When our five segments come out visibly separate on PC1/PC2, that is not PCA being clever about segments; it is the segments being different ENOUGH, in the scaled features, that the directions of biggest spread happen to run between them. If segments ever looked well-mixed in a PCA view, that would not prove they are fake - it would only mean their differences live in the directions PCA threw away. One more reason the variance receipt matters: it tells you how much room "hidden in the discarded 14%" actually has.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: WHEN TO COMPRESS ============ -->
+  <section class="section" id="when">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the use cases</span>
+      <h2>When to compress <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Three features barely need compressing - our case uses PCA mostly to SEE. But real customer tables have dozens or hundreds of columns, and there compression stops being a plotting convenience and becomes engineering.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The three jobs, and the price tag<span class="mini">6 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Compression earns its place three ways:</p>
+        <ul>
+          <li><strong>Before clustering:</strong> fewer, decorrelated dimensions. Distance-based algorithms like k-means behave better when redundant, correlated columns are not double-counting the same behavior - PCA hands you axes with the redundancy squeezed out.</li>
+          <li><strong>Visualization:</strong> what we have been doing all course. High-dimensional pile, two-dimensional screen; PCA picks the least-lossy flat view.</li>
+          <li><strong>Noise reduction:</strong> the last components often carry measurement jitter rather than structure. Dropping them can clean the signal - compression as a filter.</li>
+        </ul>
+        <p><strong>How many components to keep?</strong> The working rule of thumb: keep components until the cumulative variance explained is enough for your purpose. On our pile PC1+PC2 = 86% - comfortably enough to see five segments, as the lab will show.</p>
+        <p><strong>And the price, stated honestly:</strong> we left 14% of the story on the floor - real differences between customers that the flat picture cannot show. And we traded interpretability: a principal component is a MIX of features, not a feature. "Days since last order" is a column you can point at; "a weighted blend of F and M minus some R" needs a paragraph. Compression is a purchase, and the variance table is the receipt.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Reading the receipt in the wild<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>"Enough" cumulative variance is a purpose question, not a universal threshold. For a projector slide meant to show rough structure, a lower share can serve; for feeding a clustering pipeline whose output ships to marketing, you want the receipt high enough that you can defend what was discarded. Two habits transfer to any dataset: first, always look at how the percentages DECAY - a steep drop after a few components means the data is internally redundant and compresses gracefully, while a flat, even spread means every component carries real story and compression will be bloody. Second, say the discarded share out loud in reviews ("this view drops 14% of the variance") - the sentence costs nothing and inoculates the room against treating the picture as the whole truth.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE VISUALIZATION LIARS ============ -->
+  <section class="section" id="liars">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers t-SNE and UMAP</span>
+      <h2>t-SNE and UMAP: beautiful, useful, not to be trusted literally <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">PCA's shadows are honest but stiff - straight-line projections only. t-SNE and UMAP are nonlinear embeddings that bend space to keep neighbors together, producing the gorgeous cluster islands you see in every ML blog post. They exist for one purpose: <strong>visualization of high-dimensional data, period.</strong> The danger is that the pictures are so vivid that people read them as maps. They are not maps.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="What a t-SNE or UMAP embedding supports versus what it does not">
+        <style>
+          .tsH { font: 800 16px Inter, sans-serif; fill: #FFFFFF; }
+          .tsC { font: 800 15px Inter, sans-serif; fill: #581C87; }
+          .tsT { font: 700 13px Inter, sans-serif; fill: #221A2E; }
+          .tsW { font: 700 13px Inter, sans-serif; fill: #3F2A08; }
+          .tsX { font: 400 12px Inter, sans-serif; fill: #6B647D; }
+          .tsN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <defs>
+          <marker id="tsAh" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 z" fill="#CCC5D9"/>
+          </marker>
+        </defs>
+        <text class="tsC" x="330" y="38">One embedding plot, two readings</text>
+        <line x1="400" y1="46" x2="290" y2="66" stroke="#CCC5D9" stroke-width="2.5" marker-end="url(#tsAh)"/>
+        <line x1="480" y1="46" x2="590" y2="66" stroke="#CCC5D9" stroke-width="2.5" marker-end="url(#tsAh)"/>
+        <rect x="20" y="72" width="410" height="200" rx="14" fill="#F5EDFC"/>
+        <rect x="20" y="72" width="410" height="42" rx="14" fill="#581C87"/>
+        <text class="tsH" x="40" y="99">✓ Safe to read</text>
+        <rect x="40" y="132" width="12" height="12" rx="3" fill="#7E22CE"/>
+        <text class="tsT" x="62" y="143">These points sit in the same neighborhood</text>
+        <rect x="40" y="168" width="12" height="12" rx="3" fill="#7E22CE"/>
+        <text class="tsT" x="62" y="179">Local neighbors are probably similar</text>
+        <rect x="40" y="204" width="12" height="12" rx="3" fill="#7E22CE"/>
+        <text class="tsT" x="62" y="215">A hypothesis worth checking in the real features</text>
+        <text class="tsX" x="40" y="252">Use the picture to LOOK and to ask questions.</text>
+        <rect x="450" y="72" width="410" height="200" rx="14" fill="#FBF0DE"/>
+        <rect x="450" y="72" width="410" height="42" rx="14" fill="#D97706"/>
+        <text class="tsH" x="470" y="99">✗ Not supported by the plot</text>
+        <rect x="470" y="132" width="12" height="12" rx="3" fill="#D97706"/>
+        <text class="tsW" x="492" y="143">"Cluster A is bigger than B" - sizes equalized</text>
+        <rect x="470" y="168" width="12" height="12" rx="3" fill="#D97706"/>
+        <text class="tsW" x="492" y="179">"A is far from B" - distances may mean nothing</text>
+        <rect x="470" y="204" width="12" height="12" rx="3" fill="#D97706"/>
+        <text class="tsW" x="492" y="215">"Look, clumps!" - low perplexity clumps noise</text>
+        <text class="tsX" x="470" y="252">Never quote embedding geometry as a fact.</text>
+        <rect x="20" y="296" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="tsN" x="44" y="308">PCA compresses and feeds algorithms; t-SNE/UMAP make pictures to look at - not measure.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the do/do-not card for reading embedding plots</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The verified honesty list<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>None of this is folklore - it comes from the sources closest to the tools:</p>
+        <ul>
+          <li><strong>t-SNE cluster SIZES are meaningless.</strong> The algorithm equalizes density, so a huge diffuse group and a tiny tight one can render as similar-sized islands. Distill's "How to Use t-SNE Effectively" demonstrates this interactively.</li>
+          <li><strong>t-SNE inter-cluster DISTANCES may mean nothing.</strong> Two islands far apart in the plot are not necessarily far apart in reality - same Distill source, same interactive proof.</li>
+          <li><strong>Low perplexity makes pure noise look clustered.</strong> Turn the perplexity knob down and random uniform points sprout convincing clumps - the algorithm's most dangerous party trick, and session 9's theme in miniature.</li>
+          <li><strong>UMAP's own FAQ blesses clustering on UMAP output only "yes, with care"</strong> - and the care is specific: use a density-based method like HDBSCAN, NOT k-means, because UMAP does not preserve density. When a tool's own authors put a warning label on a use case, the warning is the documentation.</li>
+        </ul>
+        <p><strong>The working rule, on one line: PCA to compress and feed algorithms; t-SNE/UMAP to LOOK; never read embedding distances or sizes as facts.</strong></p>
+        <table class="clean">
+          <tr><th>Tool</th><th>What it preserves</th><th>Use it to</th></tr>
+          <tr><td>PCA</td><td>straight-line projection of global spread - honestly lossy, receipt attached</td><td>compress, decorrelate, and feed algorithms</td></tr>
+          <tr><td>t-SNE</td><td>local neighborhoods; sizes equalized, gaps distorted</td><td>look at high-D data and form hypotheses</td></tr>
+          <tr><td>UMAP</td><td>local structure; density NOT preserved</td><td>look; cluster only "with care" - HDBSCAN, not k-means</td></tr>
+        </table>
+        <div class="callout example"><span class="ex-pill">Real world</span>Distill's "How to Use t-SNE Effectively" became one of the most cited visualization articles in ML precisely because the failure was epidemic: papers and blog posts drawing conclusions from island sizes and gaps that were artifacts of a perplexity setting. The article's interactive figures let you watch the same data tell different stories at different knob values - ten minutes there will inoculate you for a career.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why we still love them<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>After all those warnings, the honest counterweight: for LOOKING at genuinely high-dimensional data - text embeddings, image features, hundreds of behavioral columns - nonlinear embeddings routinely reveal neighborhood structure that PCA's flat shadow smears together. The pros' posture is not "never use t-SNE"; it is "use it to generate hypotheses, then verify every hypothesis in the original features." The plot is the question, never the answer. StatQuest's t-SNE and UMAP videos are a gentle next step if you want the mechanics.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Everyone projects</span>
+      <h2>The projection lab 🥭 <span class="tag demo">★ 18 min · meet your own axes</span></h2>
+    </div>
+    <p class="lede">The lab below runs REAL PCA on the scaled 300-customer sample - the exact computation that has been drawing your axes since session 3. Today you finally read its receipt.</p>
+
+    <div id="cluster-live" data-mode="pca"></div>
+
+    <div class="steps">
+      <div class="step"><p><strong>Look at the scatter - it IS the projection.</strong> Three scaled features (R, F, M) flattened onto two principal components. The colors are the PLANTED truth, shown so you can judge what survived the flattening. Real projects get these dots in one anonymous color.</p></div>
+      <div class="step"><p><strong>Read the variance table.</strong> PC1 50%, PC2 37%, PC3 14% - so PC1+PC2 carry 86% of the pile's total spread. That one row is the entire justification for trusting a 2D picture of 3D customers.</p></div>
+      <div class="step"><p><strong>Count what compression kept.</strong> Three features became two axes, and the five planted segments are still visibly separate blobs. That is compression WORKING: 86% of the variance turned out to be enough to preserve the structure we care about.</p></div>
+      <div class="step"><p><strong>Note what died.</strong> 14% of the variance is simply gone from this picture - and so is the ability to point at an axis and say "that is frequency." Every axis is now a mix. The plot got possible; the axes got abstract. That trade is permanent.</p></div>
+      <div class="step"><p><strong>Connect backwards.</strong> Every clustering scatter since session 3 was THIS projection - same PCA, same axes, same 86%. You have been trusting it all along without knowing why; now you have seen the receipt, you know it earned that trust.</p></div>
+    </div>
+    <div class="callout tip">
+      <strong>✦ The receipt habit</strong>
+      From today, no PCA plot without its variance table. A 2D picture carrying 86% of the variance and one carrying 41% look equally pretty - the table is the only thing telling you which one you may believe.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Before next session</span>
+      <h2>Homework 📝 <span class="tag exercise">◐ 20 minutes</span></h2>
+    </div>
+    <ul>
+      <li><strong>Explain PCA-as-shadow to a colleague</strong> - the mug and its shadows, why the most-spread shadow is the most informative, and what "PC1+PC2 = 86%" means on our pile. If they can explain why you scale FIRST, you taught it well.</li>
+      <li><strong>Find a t-SNE or UMAP plot in the wild</strong> - a paper, a blog post, a vendor deck - and check the caption against the do/do-not card: does it read cluster sizes or inter-cluster distances as facts? You will be surprised how often the answer is yes.</li>
+      <li><strong>Compute the receipt for your own data:</strong> take a dataset you know and work out (or estimate) how many principal components it would need to keep 80% of the variance. Two? Ten? The answer tells you how compressible - how internally redundant - your data really is.</li>
+    </ul>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">1 · PCA chooses its first component as the direction that...</p>
+      <button class="qopt" type="button">A · preserves the most variance - the projection with the most spread</button>
+      <button class="qopt" type="button">B · separates the clusters best - it peeks at cluster labels</button>
+      <button class="qopt" type="button">C · aligns with the feature that has the largest values</button>
+      <p class="qwhy">Variance is the whole objective: spread is where distinctions between customers live, so the max-variance shadow is the least-lossy one. PCA never sees labels (it is unsupervised), and B describes what people WISH it did. C is what happens when you forget to scale - a bug, not the design.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">2 · You run sklearn's PCA on the raw Mango Lane table, monetary still in cents. What happens?</p>
+      <button class="qopt" type="button">A · nothing bad - sklearn's PCA standardizes every column automatically</button>
+      <button class="qopt" type="button">B · PCA centers the data but does NOT scale it, so the huge-variance cents column owns PC1 and the picture is mostly a unit choice</button>
+      <button class="qopt" type="button">C · sklearn raises an error because the features are on different scales</button>
+      <p class="qwhy">Centering is automatic; scaling is on you. Nothing errors, the variance table looks crisp, and PC1 is basically the cents column - session 2's disaster reborn. Scale first, always.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">3 · Which claims can a t-SNE plot NOT support?</p>
+      <button class="qopt" type="button">A · "these points landed in the same neighborhood - worth investigating"</button>
+      <button class="qopt" type="button">B · "this picture suggests a hypothesis to verify in the original features"</button>
+      <button class="qopt" type="button">C · "cluster A is bigger than cluster B, and A is far from B" - sizes and inter-cluster distances read as facts</button>
+      <p class="qwhy">t-SNE equalizes density (sizes meaningless) and distorts global geometry (inter-cluster distances may mean nothing) - both demonstrated interactively in Distill's "How to Use t-SNE Effectively". Neighborhoods and hypotheses: yes. Measurements: never.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ SOURCES COVERED ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Coverage, honestly</span>
+      <h2>What this session covered from the official universe</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">scikit-learn user guide 2.5 - Decomposition / PCA</span><span class="note">components, variance explained, and the centers-but-does-not-scale caution</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Distill - "How to Use t-SNE Effectively"</span><span class="note">cluster sizes meaningless, distances unreliable, low perplexity clusters noise</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">UMAP documentation FAQ</span><span class="note">clustering on UMAP output "yes, with care": density-based methods, not k-means</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">DataCamp "Unsupervised Learning in Python" ch2-3</span><span class="note">t-SNE and PCA concepts covered here; the hands-on sklearn code stays with DataCamp</span></div>
+    </div>
+    <p>Certificates, videos, and graded assessments stay with the official providers - this course teaches the working core with a live in-browser lab. Full source map in the repo's <em>materials/official-course-map.md</em>.</p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 6 cheat sheet</h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>PCA in one line</b><span>Finds the flat projection preserving the most variance - the best flat shadow of a higher-dimensional pile.</span></div>
+      <div class="cheat-item"><b>Components</b><span>New axes: orthogonal directions through the features, ordered by variance explained. Compression = keep the first few.</span></div>
+      <div class="cheat-item"><b>Loadings</b><span>Each component's recipe over the original features. Read them to name the axis - our PC1 is roughly "engagement/value".</span></div>
+      <div class="cheat-item"><b>Our receipt</b><span>PC1 50%, PC2 37%, PC3 14%. Two axes carry 86% of the story; 14% and axis interpretability are the price paid.</span></div>
+      <div class="cheat-item"><b>The caution</b><span>sklearn PCA centers but does NOT scale. Skip scaling and the cents column owns PC1 - session 2's trap, PCA edition.</span></div>
+      <div class="cheat-item"><b>When to compress</b><span>Pre-clustering (fewer, decorrelated dims), visualization, noise reduction. Keep components until cumulative variance is enough.</span></div>
+      <div class="cheat-item"><b>t-SNE rules</b><span>Cluster sizes meaningless, inter-cluster distances may mean nothing, low perplexity clusters pure noise (Distill).</span></div>
+      <div class="cheat-item"><b>The working rule</b><span>PCA to compress and feed algorithms; t-SNE/UMAP to LOOK (UMAP+clustering only "with care": HDBSCAN, not k-means). Never read embedding geometry as fact.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 6 of 10 · learn-unsupervised-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="u5-beyond-kmeans.html">← Prev: Beyond k-means</a> &nbsp;·&nbsp; <a href="u7-naming-and-shipping-segments.html">Next: Naming and shipping segments →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+<script src="../assets/cluster-live.js?v=1"></script>
+</body>
+</html>

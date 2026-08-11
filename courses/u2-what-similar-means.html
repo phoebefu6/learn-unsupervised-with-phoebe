@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 2 · What 'similar' means: distance, units, and the scaling lever - learn unsupervised with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-unsupervised-with-phoebe</a> / Session 2 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Unsupervised with Phoebe · Session 2 of 10</div>
+    <h1>What <span class="accent">'similar'</span> means</h1>
+    <p class="sub">Session 1 ended with a warning about a harmless-looking cents column. Today it detonates. Every clustering algorithm is a distance calculator wearing a trench coat - and whoever controls the distance controls the segments. You will watch raw units hand the entire Mango Lane analysis to the billing system's unit choice, then fix it with one preprocessing line and watch the five planted segments snap back into focus.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Easiest</span>
+      <span class="chip audience">Builder track</span>
+      <span class="chip audience">The lab opens today</span>
+      <span class="chip time">45 min + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Concepts</span>
+      <span class="a3" style="flex:4">20-40 · The scaling lab</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why this session exists</h2>
+    </div>
+    <p class="lede">Strip the branding off k-means, hierarchical clustering, DBSCAN - underneath, each one is asking the same question thousands of times: <strong>"how far apart are these two customers?"</strong> Every clustering algorithm is a distance calculator wearing a trench coat. That means the real decisions get made before the algorithm runs: which features describe a customer, and what units they arrive in. Whoever controls the distance controls the segments - and right now, on our data, the billing system controls the distance.</p>
+    <div class="legend">
+      <span class="pill solid">Live - covered in session</span>
+      <span class="pill light">Self-study - read after</span>
+      <span class="pill peach">✦ Lab moment</span>
+      <span class="pill inkpill">🥭 The Mango Lane case</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The ability to hand-compute why one feature is silently owning a distance calculation, the one-line fix (z-scaling) and exactly what it does, and a before/after you ran yourself: the same algorithm on the same customers scoring truth match 70% raw and 100% scaled. One preprocessing line beat any algorithm choice - you will say that sentence out loud by minute 40.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: DISTANCE IS THE WHOLE GAME ============ -->
+  <section class="section" id="distance">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers similarity design</span>
+      <h2>Distance is the whole game <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">A Mango Lane customer is three numbers - R, F, M - which makes her <strong>a point in 3D space</strong>. Once customers are points, "similar" gets a working definition: <strong>similar = nearby</strong>. Euclidean distance is the straight-line ruler between two points, built from the per-feature differences. But notice what just happened: "similar = nearby" is a CHOICE we made, not a fact about customers. The algorithm will enforce that choice ruthlessly.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two customers plotted as points with the distance line built from per-feature differences">
+        <defs>
+          <marker id="dsAh" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 z" fill="#CCC5D9"/>
+          </marker>
+        </defs>
+        <style>
+          .dsH { font: 800 15px Inter, sans-serif; fill: #581C87; }
+          .dsT { font: 700 13px Inter, sans-serif; fill: #221A2E; }
+          .dsX { font: 400 12px Inter, sans-serif; fill: #6B647D; }
+          .dsW { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .dsN { font: 600 13px Inter, sans-serif; fill: #3F2A08; }
+          .dsP { font: 800 13px Inter, sans-serif; fill: #7E22CE; }
+        </style>
+        <text class="dsH" x="20" y="30">Two customers as points (2 of the 3 RFM axes shown)</text>
+        <line x1="70" y1="260" x2="540" y2="260" stroke="#CCC5D9" stroke-width="2" marker-end="url(#dsAh)"/>
+        <line x1="70" y1="260" x2="70" y2="52" stroke="#CCC5D9" stroke-width="2" marker-end="url(#dsAh)"/>
+        <text class="dsX" x="380" y="282">Recency (days)</text>
+        <text class="dsX" x="20" y="46">Frequency</text>
+        <line x1="180" y1="210" x2="380" y2="210" stroke="#CCC5D9" stroke-width="2" stroke-dasharray="5 4"/>
+        <line x1="380" y1="210" x2="380" y2="100" stroke="#CCC5D9" stroke-width="2" stroke-dasharray="5 4"/>
+        <line x1="180" y1="210" x2="380" y2="100" stroke="#A855F7" stroke-width="3.5"/>
+        <circle cx="180" cy="210" r="8" fill="#581C87"/>
+        <circle cx="380" cy="100" r="8" fill="#7E22CE"/>
+        <text class="dsT" x="120" y="238">A · R 20, F 4</text>
+        <text class="dsT" x="396" y="94">B · R 40, F 12</text>
+        <text class="dsX" x="240" y="230">ΔR = 20</text>
+        <text class="dsX" x="392" y="160">ΔF = 8</text>
+        <text class="dsP" x="180" y="130">distance</text>
+        <rect x="580" y="52" width="280" height="208" rx="14" fill="#F5EDFC"/>
+        <rect x="580" y="52" width="280" height="40" rx="14" fill="#7E22CE"/>
+        <text class="dsW" x="598" y="78">How the number is built</text>
+        <text class="dsT" x="598" y="120">1 · difference per feature</text>
+        <text class="dsX" x="598" y="138">ΔR = 20 · ΔF = 8</text>
+        <text class="dsT" x="598" y="166">2 · square each difference</text>
+        <text class="dsX" x="598" y="184">400 + 64 = 464</text>
+        <text class="dsT" x="598" y="212">3 · add, take the square root</text>
+        <text class="dsX" x="598" y="230">√464 ≈ 21.5</text>
+        <rect x="20" y="302" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="dsN" x="44" y="314">Step 2 squares every difference - the feature with the biggest raw numbers owns the total.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - Euclidean distance: per-feature differences, squared, summed, rooted</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Euclidean distance in plain terms<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The straight-line ruler between two points, and the default distance inside k-means. For customers A and B it is computed per feature:</p>
+        <div class="steps">
+          <div class="step"><p><strong>Difference each feature</strong> - how far apart are A and B on recency? On frequency? On monetary?</p></div>
+          <div class="step"><p><strong>Square each difference</strong> - this makes everything positive and punishes big gaps more than small ones.</p></div>
+          <div class="step"><p><strong>Add them up and take the square root</strong> - one number: how far apart these two customers are, in feature space.</p></div>
+        </div>
+        <p>That is the entire similarity engine of this course. Every cluster boundary you will ever see is downstream of this little recipe - which is why the squaring step deserves your suspicion. A difference of 20 becomes 400; a difference of 2,300 becomes 5,290,000. <strong>Big-unit features do not just win, they win squared.</strong></p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>'Similar = nearby' is a choice, not a fact<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Nothing in nature says two customers 21.5 units apart are "somewhat similar". WE decided that similarity means geometric closeness, on THESE three features, in THESE units. Change any of those decisions and different customers become neighbors - and different segments come out the other end. The algorithm never questions the ruler it is handed; it just measures, thousands of times, and reports the groups the ruler implies.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>Google's ML clustering course spends more of its time on similarity design - how to define and weigh "similar" - than on the clustering algorithm itself. That allocation is the lesson: professionals treat the distance measure as the design surface and the algorithm as a commodity. Amateurs do the reverse, tuning algorithm knobs on top of a broken ruler.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why we can trust one ruler for this course<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>There are other rulers (Manhattan distance, cosine similarity, and more), each encoding a different opinion about what "alike" means. This course stays with Euclidean distance because it is what k-means optimizes and what our RFM features suit once scaled - but the deeper lesson travels: whichever ruler you pick, the units question of Part 2 ambushes all of them. Fix the units first; debate rulers later, if ever.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE CENTS DISASTER ============ -->
+  <section class="section" id="cents">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the planted trap</span>
+      <h2>The cents disaster 🥭 <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Look at the raw ranges in our export: recency runs <strong>1-350</strong> (days), frequency runs <strong>0.2-25</strong> (orders per year), monetary runs <strong>4,500-12,000</strong> - because billing exports speak CENTS. Now remember the squaring step. The cents column contributes MILLIONS to every squared distance while frequency contributes single digits. On raw units, <strong>distance IS money - everything else is decoration.</strong></p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Raw ranges of the three features drawn to scale, the cents bar dwarfing the others">
+        <defs>
+          <marker id="cdAh" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 z" fill="#CCC5D9"/>
+          </marker>
+        </defs>
+        <style>
+          .cdH { font: 800 15px Inter, sans-serif; fill: #581C87; }
+          .cdT { font: 700 13px Inter, sans-serif; fill: #221A2E; }
+          .cdX { font: 400 12px Inter, sans-serif; fill: #6B647D; }
+          .cdW { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .cdN { font: 600 13px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <text class="cdH" x="20" y="32">The three raw ranges, drawn to the same scale</text>
+        <text class="cdT" x="20" y="94">Recency</text>
+        <rect x="130" y="76" width="20" height="26" rx="4" fill="#A855F7"/>
+        <text class="cdX" x="162" y="94">1-350 days</text>
+        <text class="cdT" x="20" y="146">Frequency</text>
+        <rect x="130" y="128" width="3" height="26" fill="#7E22CE"/>
+        <text class="cdX" x="145" y="146">0.2-25 orders/yr (barely a sliver at this scale)</text>
+        <text class="cdT" x="20" y="198">Monetary</text>
+        <rect x="130" y="180" width="680" height="26" rx="4" fill="#581C87"/>
+        <text class="cdW" x="146" y="198">4,500-12,000 · CENTS, straight from the billing export</text>
+        <text class="cdX" x="356" y="248">distance lives in the biggest bar</text>
+        <line x1="470" y1="234" x2="470" y2="212" stroke="#CCC5D9" stroke-width="2" marker-end="url(#cdAh)"/>
+        <rect x="20" y="272" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="cdN" x="44" y="284">Squaring makes it worse: cents contributes millions per pair, frequency single digits.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - drawn to scale, the cents column is the only feature the ruler can see</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Hand-compute the takeover: one pair of customers<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>No hand-waving - pick two customers from the pile and build their squared distance, feature by feature:</p>
+        <table class="clean">
+          <tr><th>Feature</th><th>Customer A</th><th>Customer B</th><th>Difference</th><th>Squared contribution</th></tr>
+          <tr><td>Recency (days)</td><td>30</td><td>50</td><td>20</td><td>400</td></tr>
+          <tr><td>Frequency (orders/yr)</td><td>12</td><td>4</td><td>8</td><td>64</td></tr>
+          <tr><td>Monetary (cents)</td><td>6,800</td><td>9,100</td><td>2,300</td><td><strong>5,290,000</strong></td></tr>
+        </table>
+        <p>The monetary column supplies 5,290,000 of a 5,290,464 total - <strong>99.99% of the distance</strong>. A and B could have identical R and F, or wildly different R and F, and their distance would barely move. On raw units, the clustering that follows is a segmentation of wallet size with two decorative columns along for the ride.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The wallet-band failure: gifters and lapsed, filed together<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Here is the business cost, in one pairing. Among our five planted archetypes: <strong>one-time gifters</strong> average about $98 per order; <strong>lapsed big spenders</strong> average about $93. Nearly identical spend - and OPPOSITE campaigns. Gifters bought once, recently-ish, for someone else: you nudge them at gift occasions. Lapsed big spenders were loyal regulars who went quiet ~225 days ago: you send a win-back before they are gone for good.</p>
+        <p>To a cents-dominated ruler, $98 vs $93 makes them next-door neighbors. Raw 5-means duly files them into the same wallet band - one segment, one campaign, both halves wrong. This is what "confident garbage" looks like: the output renders beautifully, the clusters are real geometric clusters, and the marketing built on them fails quietly.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>scikit-learn ships a demo dedicated to exactly this failure: on a real wine dataset, a k-means pipeline scores 35% agreement with the true classes unscaled and 96% scaled. Same data, same algorithm, one preprocessing step - the gap between garbage and gold. When the library's own docs demonstrate the trap, treat the fix as non-negotiable.</div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE ONE-LINE FIX ============ -->
+  <section class="section" id="scaling">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the fix</span>
+      <h2>The one-line fix: z-scaling <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">The repair is one line and two operations per feature: <strong>subtract the mean, divide by the standard deviation.</strong> After z-scaling (standardization), every feature speaks the same language: "how unusual is this value, for this feature?" A customer 2 units above the mean on frequency is exactly as remarkable as one 2 units above the mean on monetary - cents, days, and counts all converted into the common currency of unusualness.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What z-scaling does, decoded<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Subtract the mean:</strong> every feature now centers on zero - "typical" is the same place for all three. <strong>Divide by the standard deviation:</strong> every feature's spread becomes one unit - a step of 1 means "one typical customer-to-customer gap", whether the raw column ran 0.2-25 or 4,500-12,000. The cents column's million-point squared contributions collapse to the same scale as everyone else's, and recency and frequency get their vote back.</p>
+        <p>This is why z-scaling is THE default preprocessing for k-means and for PCA (session 6): both are built on squared distances or squared deviations, so both inherit the biggest-unit-wins bug in raw form.</p>
+        <div class="callout tip">
+          <strong>Caution for session 6, filed now</strong>
+          scikit-learn's PCA auto-CENTERS your features (subtracts the mean) but does NOT scale them. Feed it raw units and the "biggest direction of variance" will simply be the biggest-unit column, mathematically dressed up. Centering is free; scaling is on you. Many a published "first principal component" is secretly a units artifact.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Scaling is a decision too<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One honest paragraph before the lab: z-scaling is not "removing bias", it is CHOOSING a different weighting - namely, equal voice per feature. Sometimes that is not what the business wants. If Mango Lane's strategy says recent behavior matters twice as much as spend, you can scale and then deliberately up-weight recency - and that is a legitimate, defensible design choice, as long as it is written down and owned by a human. The crime is not weighting; the crime is letting a billing export's unit convention do the weighting silently. Scaled-equal is the honest default; deliberate re-weighting is the honest exception.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO: THE SCALING LAB ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Everyone runs it</span>
+      <h2>The scaling lab 🥭 <span class="tag demo">★ 20 min · everyone flips the lever</span></h2>
+    </div>
+    <p class="lede">The lab below runs REAL k-means (best of five k-means++ restarts) on the actual 300-customer Mango Lane sample, in your browser, with a REAL silhouette score - nothing is canned. It opens exactly as the data arrived from billing: monetary in cents. One toggle stands between you and the five planted segments.</p>
+
+    <div id="cluster-live" data-mode="scale"></div>
+
+    <div class="steps">
+      <div class="step"><p><strong>Look at the raw scatter first.</strong> Recency runs along one axis, cents along the other. Notice the shape of the cloud before any algorithm touches it - and notice which axis your eye is already using to group people.</p></div>
+      <div class="step"><p><strong>Run 5-means on the raw data.</strong> Silhouette 0.53, truth match 70%. Read the segment readout: the clusters are wallet bands - slices of monetary value - and the gifters and lapsed big spenders have been merged into one segment, exactly the failure Part 2 predicted.</p></div>
+      <div class="step"><p><strong>Inspect WHY.</strong> The readout explains it: on raw units, distance is money. The cents column supplied virtually all of every squared distance, so the algorithm - working perfectly - segmented the only feature it could see.</p></div>
+      <div class="step"><p><strong>Flip ⚖️ Scale features ON and run again.</strong> Silhouette 0.68, truth match 100%. The five planted segments come back exactly: VIP regulars, steady mid-basket, one-time gifters, fresh arrivals, lapsed big spenders. Same customers, same algorithm, same k - different ruler.</p></div>
+      <div class="step"><p><strong>Say the sentence out loud:</strong> one preprocessing line beat any algorithm choice. No amount of k-tuning or algorithm-swapping on raw units would have gotten you what the scaling toggle just did.</p></div>
+      <div class="step"><p><strong>Remember the honesty rail.</strong> You watched truth match jump 70% to 100% only because our customers are simulated and the truth is known. On a real project that score does not exist - you would have shipped the wallet bands, confidently. The habits from this session are the substitute for the score you will never have.</p></div>
+    </div>
+    <div class="callout tip">
+      <strong>✦ Keep the before/after</strong>
+      Screenshot or note the two readouts: raw 0.53/70% vs scaled 0.68/100%. It is the single most persuasive exhibit in this course when a colleague asks why you are "fussing with preprocessing" - and you will want it again in the capstone, where this exact ladder is step one.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Before next session</span>
+      <h2>Homework 📝 <span class="tag exercise">◐ 20 minutes</span></h2>
+    </div>
+    <ul>
+      <li><strong>Find a cents/units trap in a real table at work.</strong> Open any table you use - metrics dashboard, CRM export, spreadsheet - list the columns with their units, and circle the one with the biggest raw numbers. That column has been silently dominating every distance-based or "similar items" analysis ever run on that table unscaled.</li>
+      <li><strong>Hand-compute one squared-difference triple.</strong> Pick two rows from your table (or reuse customers A and B from Part 2), compute the three squared differences, and write what percent of the total the biggest column supplies. Feeling the 99% with your own arithmetic is the vaccine.</li>
+      <li><strong>Explain z-scaling to a colleague in 2 sentences.</strong> Target: "subtract the mean, divide by the standard deviation - now every feature answers 'how unusual is this?' instead of shouting in its own units." If they nod, you own the concept.</li>
+    </ul>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Features arrive with raw ranges of 1-350, 0.2-25, and 4,500-12,000. Unscaled, Euclidean distance between customers is effectively decided by...</p>
+      <button class="qopt" type="button">A · all three features equally - distance averages them out</button>
+      <button class="qopt" type="button">B · the 4,500-12,000 feature - its squared differences dwarf the others by orders of magnitude</button>
+      <button class="qopt" type="button">C · the 0.2-25 feature - small numbers are more precise</button>
+      <p class="qwhy">Differences get squared before summing: a cents gap of 2,300 contributes 5,290,000 while a frequency gap of 8 contributes 64. The biggest-unit feature does not just win, it wins squared - distance IS money on our raw data.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Z-scaling (standardization) transforms each feature by...</p>
+      <button class="qopt" type="button">A · converting it to a 0-100 percentage of its maximum</button>
+      <button class="qopt" type="button">B · taking its logarithm to compress big values</button>
+      <button class="qopt" type="button">C · subtracting the mean and dividing by the standard deviation, so every feature speaks in 'how unusual is this?' units</button>
+      <p class="qwhy">Center on zero, spread of one. After z-scaling, a 2-unit gap means "two typical customer-to-customer spreads apart" on ANY feature - cents, days, and counts all converted into the same currency of unusualness.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Raw 5-means merged one-time gifters (~$98 avg order) with lapsed big spenders (~$93) - two groups needing opposite campaigns. Why did raw units cause exactly this merge?</p>
+      <button class="qopt" type="button">A · cents dominated the distance, so near-identical spend made them neighbors - their huge recency and frequency differences barely registered</button>
+      <button class="qopt" type="button">B · k was set too low for the algorithm to separate them</button>
+      <button class="qopt" type="button">C · the two groups genuinely behave alike, so the merge is correct</button>
+      <p class="qwhy">On raw units the ruler could only see money, and $98 vs $93 is a rounding error in cents-space. The features that distinguish them - one order long ago vs many orders then silence - were mathematically present but squared into irrelevance. Scaling restored their vote and the merge dissolved.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ SOURCES COVERED ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Coverage, honestly</span>
+      <h2>What this session covered from the official universe</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google ML Clustering course - similarity design</span><span class="note">the "similar = nearby is a choice" framing and why similarity gets more design time than the algorithm</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">scikit-learn "Importance of feature scaling" demo</span><span class="note">the 35% unscaled vs 96% scaled result, re-enacted on Mango Lane with the cents trap</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">scikit-learn PCA - centers but does not scale</span><span class="note">filed as a caution today; the full PCA treatment lands in session 6</span></div>
+    </div>
+    <p>Certificates, videos, and graded assessments stay with the official providers - this course teaches the working core with a live in-browser lab. Full source map in the repo's <em>materials/official-course-map.md</em>.</p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 2 cheat sheet</h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The trench coat</b><span>Every clustering algorithm is a distance calculator underneath. Whoever controls the distance controls the segments.</span></div>
+      <div class="cheat-item"><b>Euclidean distance</b><span>Per-feature differences → square each → sum → square root. The default ruler of this course and of k-means.</span></div>
+      <div class="cheat-item"><b>Similar = nearby</b><span>A design CHOICE, not a fact. Features, units, and weights decide who counts as neighbors before any algorithm runs.</span></div>
+      <div class="cheat-item"><b>The cents disaster</b><span>Ranges 1-350, 0.2-25, 4,500-12,000. Squared, cents contributes millions vs single digits: distance IS money.</span></div>
+      <div class="cheat-item"><b>The wallet-band failure</b><span>Gifters (~$98) merged with lapsed big spenders (~$93) - identical spend, OPPOSITE campaigns, one wrong segment.</span></div>
+      <div class="cheat-item"><b>Z-scaling</b><span>Subtract mean, divide by std. Every feature now speaks "how unusual is this?" - THE default prep for k-means and PCA.</span></div>
+      <div class="cheat-item"><b>The lab ladder</b><span>Raw: silhouette 0.53, truth 70%. Scaled: 0.68, 100%. One preprocessing line beat any algorithm choice.</span></div>
+      <div class="cheat-item"><b>Two cautions</b><span>sklearn PCA centers but does NOT scale. And scaling is itself a weighting decision - make it deliberately, in writing.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 2 of 10 · learn-unsupervised-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="u1-the-pile-with-no-labels.html">← Prev: The pile with no labels</a> &nbsp;·&nbsp; <a href="u3-kmeans-from-the-inside.html">Next: k-means from the inside →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+<script src="../assets/cluster-live.js?v=1"></script>
+</body>
+</html>

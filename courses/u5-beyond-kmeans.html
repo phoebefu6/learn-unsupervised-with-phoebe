@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 5 · Beyond k-means: shapes it cannot see - learn unsupervised with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-unsupervised-with-phoebe</a> / Session 5 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Unsupervised with Phoebe · Session 5 of 10</div>
+    <h1>Beyond k-means: <span class="accent">shapes it cannot see</span></h1>
+    <p class="sub">Three sessions of k-means earned it the workhorse title - but its one move is drawing straight borders around round territories. The world also contains moons, rings, and chains, and the day your scatter shows one, k-means will cut straight through it with total confidence. Today: the two rivals that cover its blind spots - hierarchical clustering and DBSCAN - plus GMM, the version of k-means that answers in probabilities. And the comparison-table way of choosing between them that sklearn itself uses.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Building</span>
+      <span class="chip audience">Builder track</span>
+      <span class="chip audience">Three algorithms, one shape-off</span>
+      <span class="chip time">45 min + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Concepts</span>
+      <span class="a3" style="flex:4">20-40 · The shape-off</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why this session exists</h2>
+    </div>
+    <p class="lede">k-means assigns every point to its nearest centroid, which means every border it draws is straight and every territory it imagines is round-ish. On our RFM blobs that assumption happens to be true - which is exactly why it has worked for three sessions. But assumptions that happen to be true are the most dangerous kind: nobody remembers they were assumptions. Today we break k-means on purpose, on a shape planted to defeat it, and meet the algorithms built for the shapes it cannot see.</p>
+    <div class="legend">
+      <span class="pill solid">Live - covered in session</span>
+      <span class="pill light">Self-study - read after</span>
+      <span class="pill peach">✦ Lab moment</span>
+      <span class="pill inkpill">🥭 The Mango Lane case</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      Three new tools with their price tags attached: the dendrogram (every k from one run), DBSCAN (any shape, plus the right to answer "noise"), and GMM (probabilities instead of verdicts). Plus the one-table habit for choosing between them - by geometry, scale, and whether you must label new points - instead of by fashion.
+    </div>
+    <div class="callout tip">
+      <strong>The honesty rail, as always</strong>
+      Every algorithm in today's lab runs for real in your browser - real k-means, real DBSCAN, real EM. The "truth match" percentages exist only because the moons are planted; a real project never gets that score. Simulation luxury, admitted up front.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: HIERARCHICAL ============ -->
+  <section class="section" id="hierarchical">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers agglomerative clustering</span>
+      <h2>Hierarchical clustering and the dendrogram <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">k-means starts with an answer (k centroids) and sorts everyone into it. Hierarchical clustering refuses to start with an answer: <strong>every point begins as its own cluster of one, and the algorithm repeatedly merges the closest pair</strong> - point with point, point with group, group with group - until only one cluster remains. That is the whole algorithm. The product is not one clustering; it is the entire merge history.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A dendrogram with two cut heights giving 3 or 5 clusters">
+        <style>
+          .hdT { font: 700 14px Inter, sans-serif; fill: #221A2E; }
+          .hdX { font: 400 12.5px Inter, sans-serif; fill: #6B647D; }
+          .hdC { font: 800 14px Inter, sans-serif; fill: #581C87; }
+          .hdL { font: 600 12px Inter, sans-serif; fill: #6B647D; }
+          .hdN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <defs>
+          <marker id="hdAh" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 Z" fill="#D97706"/>
+          </marker>
+        </defs>
+        <text class="hdX" x="60" y="36">height = distance at which two groups merged</text>
+        <!-- dendrogram -->
+        <path d="M100 270 V210 M190 270 V210 M100 210 H190 M145 210 V130" fill="none" stroke="#7E22CE" stroke-width="2.5"/>
+        <path d="M280 270 V200 M370 270 V200 M280 200 H370 M325 200 V130" fill="none" stroke="#7E22CE" stroke-width="2.5"/>
+        <path d="M145 130 H325 M235 130 V80" fill="none" stroke="#581C87" stroke-width="2.5"/>
+        <path d="M480 270 V80 M235 80 H480 M357 80 V48" fill="none" stroke="#581C87" stroke-width="2.5"/>
+        <circle cx="100" cy="277" r="6" fill="#A855F7"/>
+        <circle cx="190" cy="277" r="6" fill="#A855F7"/>
+        <circle cx="280" cy="277" r="6" fill="#A855F7"/>
+        <circle cx="370" cy="277" r="6" fill="#A855F7"/>
+        <circle cx="480" cy="277" r="6" fill="#A855F7"/>
+        <text class="hdL" x="96" y="299">A</text>
+        <text class="hdL" x="186" y="299">B</text>
+        <text class="hdL" x="276" y="299">C</text>
+        <text class="hdL" x="366" y="299">D</text>
+        <text class="hdL" x="476" y="299">E</text>
+        <!-- cut 1: 3 clusters -->
+        <line x1="60" y1="160" x2="560" y2="160" stroke="#D97706" stroke-width="2" stroke-dasharray="7 5"/>
+        <line x1="590" y1="160" x2="566" y2="160" stroke="#D97706" stroke-width="2" marker-end="url(#hdAh)"/>
+        <text class="hdC" x="598" y="164">cut here = 3 clusters</text>
+        <text class="hdX" x="598" y="182">the line crosses 3 branches:</text>
+        <text class="hdX" x="598" y="198">{A,B} · {C,D} · {E}</text>
+        <!-- cut 2: 5 clusters -->
+        <line x1="60" y1="240" x2="560" y2="240" stroke="#A855F7" stroke-width="2" stroke-dasharray="7 5"/>
+        <line x1="590" y1="240" x2="566" y2="240" stroke="#D97706" stroke-width="2" marker-end="url(#hdAh)"/>
+        <text class="hdC" x="598" y="244">cut lower = 5 clusters</text>
+        <text class="hdX" x="598" y="262">below every merge, each</text>
+        <text class="hdX" x="598" y="278">point still stands alone</text>
+        <!-- note -->
+        <rect x="60" y="308" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="hdN" x="84" y="320">One run stores the whole merge history - slide the cut to get ANY k, no re-running.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the dendrogram is the merge history; the cut height chooses k after the fact</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Bottom-up, and the tree you get for free<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The flavor we mean is <strong>agglomerative</strong> - bottom-up. Round one merges the two closest points in the pile. Round two merges the next closest pair (which might now involve that little group). Repeat n-1 times and everything is one cluster. Record every merge and the height (distance) at which it happened, and you have the <strong>dendrogram</strong> - the tree above.</p>
+        <p>Here is the payoff k-means cannot match: <strong>cut the tree at any height and you get a clustering at that granularity.</strong> Cut high, few clusters; cut low, many. Session 4's whole agony - choosing k - becomes a slider you drag AFTER the single run, instead of a reason to re-run the algorithm at every candidate k. You also get the nesting itself: which segments are cousins, which merged last, which pair was inseparable from round one.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>When it shines, and what it costs<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>When it shines:</strong> taxonomy-like questions ("show me the nesting, not just the groups"), small-to-medium data, and any situation where the distances between points are exotic - sklearn's comparison table lists agglomerative clustering as the choice for <em>many clusters, connectivity constraints, and any pairwise distance</em>. If you can compute a distance between two things - customers, documents, gene sequences - you can grow a dendrogram over them. k-means, by contrast, is married to Euclidean distance and means.</p>
+        <p><strong>What it costs:</strong> the merge loop compares everything with everything, so it is O(n²)-ish in time and memory. Our 300-customer lab sample is nothing; 12,000 customers is workable; millions is not the tool's territory. The pros' pattern: dendrogram on a sample to UNDERSTAND the structure, faster algorithm on the full pile to ASSIGN it.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>Dendrograms predate ML by decades: biology's family trees of species are exactly this - merge the two most similar things, repeat, draw the tree. When a stakeholder asks "which of our five segments are most alike?", a dendrogram answers in one picture; five k-means centroids answer only with a shrug. That nesting question is the tell that hierarchical is the right grab.</div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: DBSCAN ============ -->
+  <section class="section" id="dbscan">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers density-based clustering</span>
+      <h2>DBSCAN: follow the density <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">DBSCAN abandons centroids entirely and asks one local question at every point: <strong>is this neighborhood crowded?</strong> A point with at least <code>min_samples</code> neighbors within radius <code>eps</code> is a <strong>core point</strong>. Core points recruit their neighbors, those neighbors' cores recruit theirs, and a cluster is whatever the chain reaction reaches - whatever shape that turns out to be. Moons, rings, chains: if the density connects, DBSCAN traces it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DBSCAN chaining neighborhoods along a curved moon of points, with isolated noise points">
+        <style>
+          .dbT { font: 700 14px Inter, sans-serif; fill: #221A2E; }
+          .dbX { font: 400 12.5px Inter, sans-serif; fill: #6B647D; }
+          .dbC { font: 800 14px Inter, sans-serif; fill: #581C87; }
+          .dbW { font: 700 12.5px Inter, sans-serif; fill: #3F2A08; }
+          .dbN { font: 600 14px Inter, sans-serif; fill: #3F2A08; }
+        </style>
+        <defs>
+          <marker id="dbAh" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 Z" fill="#D97706"/>
+          </marker>
+        </defs>
+        <text class="dbC" x="60" y="34">A moon-shaped band - no centroid anywhere inside it</text>
+        <!-- chained eps-neighborhoods along the upper arc -->
+        <circle cx="120" cy="215" r="26" fill="none" stroke="#D97706" stroke-width="1.8" stroke-dasharray="5 4"/>
+        <circle cx="138" cy="172" r="26" fill="none" stroke="#D97706" stroke-width="1.8" stroke-dasharray="5 4"/>
+        <circle cx="168" cy="134" r="26" fill="none" stroke="#D97706" stroke-width="1.8" stroke-dasharray="5 4"/>
+        <circle cx="208" cy="106" r="26" fill="none" stroke="#D97706" stroke-width="1.8" stroke-dasharray="5 4"/>
+        <!-- upper moon points -->
+        <circle cx="114" cy="230" r="6" fill="#7E22CE"/>
+        <circle cx="122" cy="199" r="6" fill="#7E22CE"/>
+        <circle cx="136" cy="171" r="6" fill="#7E22CE"/>
+        <circle cx="158" cy="147" r="6" fill="#7E22CE"/>
+        <circle cx="186" cy="122" r="6" fill="#7E22CE"/>
+        <circle cx="220" cy="103" r="6" fill="#7E22CE"/>
+        <circle cx="258" cy="92" r="6" fill="#7E22CE"/>
+        <circle cx="298" cy="88" r="6" fill="#7E22CE"/>
+        <circle cx="338" cy="94" r="6" fill="#7E22CE"/>
+        <circle cx="374" cy="108" r="6" fill="#7E22CE"/>
+        <circle cx="404" cy="130" r="6" fill="#7E22CE"/>
+        <!-- lower moon points -->
+        <circle cx="250" cy="200" r="6" fill="#A855F7"/>
+        <circle cx="262" cy="228" r="6" fill="#A855F7"/>
+        <circle cx="282" cy="252" r="6" fill="#A855F7"/>
+        <circle cx="310" cy="270" r="6" fill="#A855F7"/>
+        <circle cx="344" cy="280" r="6" fill="#A855F7"/>
+        <circle cx="380" cy="282" r="6" fill="#A855F7"/>
+        <circle cx="414" cy="274" r="6" fill="#A855F7"/>
+        <circle cx="444" cy="258" r="6" fill="#A855F7"/>
+        <circle cx="468" cy="236" r="6" fill="#A855F7"/>
+        <circle cx="484" cy="208" r="6" fill="#A855F7"/>
+        <!-- annotation arrow to the chain -->
+        <line x1="330" y1="46" x2="232" y2="92" stroke="#D97706" stroke-width="2" marker-end="url(#dbAh)"/>
+        <text class="dbX" x="338" y="50">ε-neighborhoods overlap, so the cluster</text>
+        <text class="dbX" x="338" y="66">grows point-to-point along the band</text>
+        <!-- noise points -->
+        <circle cx="640" cy="120" r="6" fill="#CCC5D9" stroke="#6B647D" stroke-width="1.5"/>
+        <circle cx="712" cy="208" r="6" fill="#CCC5D9" stroke="#6B647D" stroke-width="1.5"/>
+        <circle cx="656" cy="272" r="6" fill="#CCC5D9" stroke="#6B647D" stroke-width="1.5"/>
+        <text class="dbW" x="660" y="112">too few neighbors:</text>
+        <text class="dbW" x="660" y="128">noise, label -1</text>
+        <text class="dbX" x="600" y="176">Not forced into any cluster -</text>
+        <text class="dbX" x="600" y="192">"belongs to nothing" is a</text>
+        <text class="dbX" x="732" y="212">legal answer</text>
+        <!-- note -->
+        <rect x="60" y="308" width="14" height="14" rx="3" fill="#D97706"/>
+        <text class="dbN" x="84" y="320">Core point: at least min_samples neighbors within eps. Clusters = chained cores + their edges.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - density chains trace the moon; loners get the honest label -1</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Noise as a first-class answer<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Remember session 1's sticky note: k-means always succeeds - every point gets filed somewhere, including points that belong nowhere. DBSCAN is <strong>the only algorithm today allowed to say "this customer belongs to nothing."</strong> A point that is neither a core nor within reach of one gets the label <strong>-1: noise</strong>. Not cluster negative-one - an explicit refusal to file it.</p>
+        <p>For Mango Lane that is not a bug report, it is a feature: the customer who bought one wedding outfit at 3am and vanished does not deserve to distort the VIP centroid. Filing her as noise is more honest than filing her anywhere.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>This is why DBSCAN's family dominates fraud and anomaly work: the interesting customers are precisely the ones that do not belong. In geodata it is the classic tool for the same reason - GPS points cluster along roads and coastlines (chains and curves, not blobs), and sensor glitches land as -1 instead of dragging a centroid into the ocean. The sibling course learn-anomaly-detection lives one shelf over.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The price: two touchy knobs, and no new arrivals<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>No free lunch, and DBSCAN's bill has two lines:</p>
+        <ul>
+          <li><strong>No k needed - but eps and min_samples are crucial and touchy.</strong> You escaped choosing k and inherited choosing a radius. Too small an eps and the chain breaks: one moon shatters into fragments and stragglers flood the noise bin. Too large and the two moons fuse into one blob. There is no session-4-style curve that picks eps for you; it takes domain sense and experimentation.</li>
+          <li><strong>Transductive: it cannot label a brand-new point.</strong> sklearn's terms: k-means is inductive - it learns centroids, so tomorrow's new customer gets assigned with one distance check. DBSCAN only ever labeled THIS pile; a new arrival means re-running the chain reaction. For a segmentation that must score every new signup nightly, that is disqualifying on its own.</li>
+        </ul>
+        <p>Hold both in mind during the shape-off: DBSCAN will win the moons outright - and would still be the wrong production choice for Mango Lane's daily pipeline.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: GMM + THE TABLE ============ -->
+  <section class="section" id="gmm">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers mixture models + choosing</span>
+      <h2>GMM: the soft answer <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">A Gaussian mixture model says: the pile was generated by k overlapping fuzzy ellipses (Gaussians), and every customer is a draw from one of them - we just do not know which. The EM algorithm fits the ellipses and then answers the only way honesty allows: <strong>with probabilities, not verdicts.</strong> Customer #4821 is not "cluster 2"; she is 60% steady mid-basket, 40% VIP regular.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Fuzzy ellipses and predict_proba<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The safe sentence, straight from sklearn's docs: mixtures <strong>"generalize k-means to incorporate covariance structure"</strong>. Say generalization, never identical - k-means draws each territory as a same-size circle around a centroid; a GMM lets each cluster be an ellipse with its own stretch and tilt (four covariance types in sklearn, from spherical to fully free). Where k-means answers <code>predict</code> (a verdict), GMM also answers <code>predict_proba</code> (a probability per cluster). And its cousin of session 4's k-question has a principled answer: <strong>BIC</strong> scores fit-versus-complexity to pick the component count.</p>
+        <p>The business payoff is exactly the borderline customer. Hard clustering forces the 51/49 case into one campaign; a GMM hands marketing the 60/40 truth - which is precisely what a marketer wants to know about a customer sitting between segments.</p>
+        <div class="callout example"><span class="ex-pill">Real world</span>Ad-tech and CRM platforms quietly run on soft assignment: a "propensity to churn" score IS a soft cluster membership. The moment a stakeholder asks "how sure are we that she is a VIP?", hard k-means has no answer at all - the question is only well-posed in a model that returns probabilities. Keep GMM in your pocket for the day someone asks it.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>When soft labels beat hard ones<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>What do you actually DO with 60/40? Judgment calls, all of them: send both campaigns (and eat the cost and the inbox fatigue)? Send the 60% one (and accept being wrong 40% of the time)? Hold her out of both and watch another month? There is no formula - but notice that every one of those options was invisible under hard clustering, which silently made the choice for you by rounding 60/40 up to 100/0. Soft labels do not remove the decision; they surface it. Write down which policy you would pick for Mango Lane and why - session 7's segment sheet has a column for exactly this.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Choosing like sklearn does: the comparison table<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>sklearn's clustering guide opens with a big comparison table, and its axes are the whole lesson: choose by <strong>geometry</strong> (flat borders vs non-flat shapes), <strong>cluster sizes</strong> (even vs uneven), <strong>scale</strong> (how many points survive the algorithm's appetite), and <strong>whether you must label NEW points</strong> - inductive algorithms like k-means and BIRCH can; transductive ones like DBSCAN, hierarchical, and spectral cannot without a re-run. Here is that thinking on today's four:</p>
+        <table class="clean">
+          <tr><th>Algorithm</th><th>Needs k?</th><th>Shapes</th><th>Noise handling</th><th>New points</th><th>Mango Lane verdict</th></tr>
+          <tr><td>k-means</td><td>Yes, up front</td><td>Round-ish, straight borders</td><td>None - everyone gets filed</td><td>Yes (inductive)</td><td>The workhorse - our blobs fit it</td></tr>
+          <tr><td>Hierarchical</td><td>No - cut the tree for any k</td><td>Depends on linkage; any pairwise distance</td><td>None</td><td>No (re-run)</td><td>Grab for "show me the nesting"</td></tr>
+          <tr><td>DBSCAN</td><td>No - but eps/min_samples touchy</td><td>Arbitrary - chains density</td><td>First-class: label -1</td><td>No (transductive)</td><td>Grab when the scatter shows moons</td></tr>
+          <tr><td>GMM</td><td>Yes - BIC helps pick</td><td>Ellipses via covariance</td><td>None, but low proba everywhere flags it</td><td>Yes (predict_proba)</td><td>Grab when borderline cases matter</td></tr>
+        </table>
+        <p><strong>The verdict row's conclusion:</strong> our RFM blobs are round-ish and k-means is fine - the rivals are for the days the data is not. Knowing WHICH rival, from a table like this rather than from fashion, is the skill.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO: THE SHAPE-OFF ============ -->
+  <section class="section" id="demo">
+    <div class="section-kicker">
+      <span class="klabel">Everyone referees</span>
+      <h2>The shape-off 🥊 <span class="tag demo">★ 18 min · three algorithms, one planted shape</span></h2>
+    </div>
+    <p class="lede">The lab below swaps the customer pile for <strong>two interleaved moons</strong> - a shape planted specifically to be non-round - and lets you run all three algorithms on it for real, in your browser. Same points, three worldviews, three very different scores. Referee honestly.</p>
+
+    <div id="cluster-live" data-mode="algos"></div>
+
+    <div class="steps">
+      <div class="step"><p><strong>Look at the two interleaved moons first.</strong> Your eye separates them instantly - two curved bands, hooked into each other. No blob, no centroid, nowhere to stand a flag. This shape was planted to be non-round; hold your eye's answer as the reference.</p></div>
+      <div class="step"><p><strong>▶ Run k-means (k=2): truth match 83%.</strong> It drew a straight border through both moons - because straight borders are all it has. Each centroid grabs the nearest half of BOTH bands. Note the confidence: no error, no warning, a perfectly tidy wrong answer.</p></div>
+      <div class="step"><p><strong>▶ Run DBSCAN (eps .32, min 5): 100%.</strong> It traced each moon by chaining dense neighborhoods, and nobody gave it a k. This tidy sample yields no noise points - shrink eps in your head and stragglers at the moon tips would start going -1.</p></div>
+      <div class="step"><p><strong>▶ Run GMM: 83% soft.</strong> Spherical gaussians struggle on moons for the same reason k-means does - but note the concept: it returned probabilities. The points near the border between moons are exactly the ones it is least sure about, and it says so.</p></div>
+      <div class="step"><p><strong>Say the moral out loud: no winner exists - only fit between assumptions and shape.</strong> DBSCAN did not "beat" k-means; its assumption (density chains) happened to match this data. On well-separated round blobs the ranking flips.</p></div>
+      <div class="step"><p><strong>Connect back to Mango Lane:</strong> our customer pile IS round-ish blobs, so k-means stays our workhorse for the rest of the course. What you gained today is knowing which rival to grab on the day the scatter says otherwise - and the table to justify the grab.</p></div>
+    </div>
+    <div class="callout tip">
+      <strong>✦ The honest asterisk</strong>
+      The 83% / 100% / 83% scores exist because we planted the moons and know every point's true band. On a real weird-shaped dataset you would have your eye, the silhouette (which also dislikes non-round shapes - careful), and your judgment. The lab's scoreboard is a teaching instrument, not a promise.
+    </div>
+  </section>
+
+  <!-- ============ EXERCISE ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Before next session</span>
+      <h2>Homework 📝 <span class="tag exercise">◐ 20 minutes</span></h2>
+    </div>
+    <ul>
+      <li><strong>Sketch the failure, both ways:</strong> draw (on paper) one dataset where k-means wins and DBSCAN embarrasses itself, and one where the reverse holds. Hint for the first: two round blobs of very different density, close together - what does a single eps do to them?</li>
+      <li><strong>Read one row we skipped:</strong> open sklearn's clustering comparison table (user guide 2.3) and read the row for an algorithm we only named - spectral, BIRCH, or OPTICS. Classify it yourself: inductive or transductive? What geometry? Write two sentences on when you would grab it.</li>
+      <li><strong>Write the 60/40 policy memo:</strong> one paragraph deciding what Mango Lane should do with a customer who is 60% steady mid-basket, 40% VIP - both campaigns, the likelier one, or hold out? Defend the cost trade-off; there is no right answer, only an owned one.</li>
+    </ul>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · Cutting a dendrogram at a chosen height gives you...</p>
+      <button class="qopt" type="button">A · the single best clustering, as certified by the algorithm</button>
+      <button class="qopt" type="button">B · a fresh re-run of the clustering at that k</button>
+      <button class="qopt" type="button">C · a clustering at that granularity - any k you like, from the one stored merge history</button>
+      <p class="qwhy">The dendrogram is the whole merge history; the cut just chooses where to stop reading it. One O(n²)-ish run, every k for free afterward - the exact opposite of k-means, which must re-run per k.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">2 · Among today's three algorithms, the power that belongs to DBSCAN alone is...</p>
+      <button class="qopt" type="button">A · tracing clusters of arbitrary shape</button>
+      <button class="qopt" type="button">B · labeling a point as noise (-1) - refusing to file it in any cluster</button>
+      <button class="qopt" type="button">C · running without any parameters at all</button>
+      <p class="qwhy">Noise as a first-class answer is DBSCAN's signature: k-means and GMM file everyone somewhere. (A is real but not alone - hierarchical with the right linkage bends too. C is false: eps and min_samples are crucial and touchy.)</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · GMM's "soft assignment" means...</p>
+      <button class="qopt" type="button">A · each point gets a probability per cluster (predict_proba) instead of a single verdict</button>
+      <button class="qopt" type="button">B · the cluster borders are smoothed for nicer plots</button>
+      <button class="qopt" type="button">C · points can be gently moved to improve the clustering</button>
+      <p class="qwhy">A mixture model treats membership as uncertain and says so: 60% this segment, 40% that one. That is the payoff for borderline customers - and the sentence to remember is that GMM generalizes k-means to incorporate covariance structure.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ SOURCES COVERED ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Coverage, honestly</span>
+      <h2>What this session covered from the official universe</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">scikit-learn user guide 2.3 - the clustering comparison table</span><span class="note">geometry / sizes / scale / inductive-vs-transductive axes, rebuilt as the Mango Lane verdict table</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">scikit-learn DBSCAN</span><span class="note">core points, eps/min_samples, noise label -1, arbitrary shapes, transductive limitation</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">scikit-learn mixture models (GMM)</span><span class="note">soft assignment via predict_proba, covariance types, BIC - taught with the safe "generalizes k-means" phrasing</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">StatQuest - hierarchical clustering and DBSCAN videos</span><span class="note">the step-by-step mechanics; watch for the linkage options this session only waved at</span></div>
+    </div>
+    <p>Certificates, videos, and graded assessments stay with the official providers - this course teaches the working core with a live in-browser lab. Full source map in the repo's <em>materials/official-course-map.md</em>.</p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 5 cheat sheet</h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Agglomerative</b><span>Every point starts alone; repeatedly merge the closest pair until one cluster remains. Bottom-up.</span></div>
+      <div class="cheat-item"><b>Dendrogram</b><span>The merge history as a tree. Cut at any height = any k, from ONE run. Also shows which groups are cousins.</span></div>
+      <div class="cheat-item"><b>Hierarchical's price</b><span>O(n²)-ish - sample-sized, not millions. Shines on taxonomy questions and any pairwise distance.</span></div>
+      <div class="cheat-item"><b>DBSCAN core point</b><span>At least min_samples neighbors within eps. Clusters = chain reactions of overlapping neighborhoods, any shape.</span></div>
+      <div class="cheat-item"><b>Noise, label -1</b><span>DBSCAN's signature: "belongs to nothing" is a legal answer. The only one of today's three allowed to say it.</span></div>
+      <div class="cheat-item"><b>The knobs</b><span>No k, but eps/min_samples are crucial and touchy - too small shatters, too large fuses. No curve picks them for you.</span></div>
+      <div class="cheat-item"><b>GMM</b><span>Fuzzy ellipses; generalizes k-means to incorporate covariance structure; predict_proba gives 60/40 answers; BIC picks count.</span></div>
+      <div class="cheat-item"><b>Inductive vs transductive</b><span>k-means/GMM label new arrivals; DBSCAN/hierarchical must re-run. Decisive for nightly scoring pipelines.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 5 of 10 · learn-unsupervised-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="u4-picking-k.html">← Prev: Picking k</a> &nbsp;·&nbsp; <a href="u6-compressing-the-customer.html">Next: Compressing the customer →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+<script src="../assets/cluster-live.js?v=1"></script>
+</body>
+</html>
